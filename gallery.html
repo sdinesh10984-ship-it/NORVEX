@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery — Norvex</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="icon" type="image/png" href="logo.jpeg" />
+  <style>
+    /* ── ROOT ── */
+    :root {
+      --teal: #00c9a7;
+      --teal-deep: #007a6b;
+      --teal-glow: rgba(0, 201, 167, 0.18);
+      --ink: #0e0020;
+      --text: #e8edf5;
+      --muted: rgba(232, 237, 245, 0.45);
+      --surface: rgba(30, 10, 50, 0.6);
+      --border: rgba(232, 237, 245, 0.08);
+      --purple: #3d0070;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "DM Sans", sans-serif;
+      background: var(--ink);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── AMBIENT CANVAS ── */
+    canvas.ambient {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(25, 8, 45, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(61, 0, 112, 0.5);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    .nor {
+        color: white;
+      }
+
+      .vex {
+        padding: 0;
+        margin-left: -2px;
+        color: var(--teal); /* change to any color you want */
+      }
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--text);
+        text-decoration: none;
+        font-kerning: none;
+      }
+      .logo-mark {
+        width: 36px;
+        height: 36px;
+        border: 1.5px solid var(--teal);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: var(--teal);
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+      }
+      .logo-mark::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 0;
+        background: var(--teal);
+        transition: height 0.3s;
+        z-index: 0;
+      }
+      .logo:hover .logo-mark::before {
+        height: 100%;
+      }
+      .logo:hover .logo-mark {
+        color: white;
+      }
+      .logo-mark i {
+        position: relative;
+        z-index: 1;
+      }
+      .logo-img {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+        border-radius: 20px;
+        margin-right: 8px;
+        filter: brightness(1.1);
+        transition:
+          transform 0.35s ease,
+          filter 0.35s ease,
+          box-shadow 0.35s ease;
+      }
+      .logo {
+        transition:
+          letter-spacing 0.35s ease,
+          color 0.35s ease;
+      }
+      .logo:hover .logo-img {
+        transform: scale(1.12) rotate(-3deg);
+        filter: brightness(1.3) drop-shadow(0 0 10px rgba(12, 185, 192, 0.6));
+      }
+      .logo:hover {
+        letter-spacing: 0.14em;
+        color: rgba(232, 237, 245, 0.9);
+      }
+    nav ul {
+      display: flex; gap: 36px; list-style: none;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px; font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      position: relative; transition: color 0.3s;
+    }
+    nav a::after {
+      content: ""; position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 1px; background: var(--teal);
+      transform: scaleX(0); transition: transform 0.3s;
+      transform-origin: left;
+    }
+    nav a:hover { color: var(--text); }
+    nav a:hover::after { transform: scaleX(1); }
+    nav a.active { color: var(--teal); }
+    nav a.active::after { transform: scaleX(1); }
+
+    nav a.btn-login {
+      background: linear-gradient(135deg, #3d0070, #00c9a7);
+      color: #fff !important;
+      padding: 8px 20px; border-radius: 999px;
+      font-weight: 500; letter-spacing: 0.05em; transition: all 0.3s;
+    }
+    nav a.btn-login:hover {
+      background: #007a6b; transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 201, 167, 0.4);
+    }
+    nav a.btn-login::after { display: none; }
+
+    /* ── PAGE CONTENT ── */
+    .page-wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 32px 100px;
+    }
+
+    /* ── HERO BANNER ── */
+    .gallery-hero {
+      text-align: center;
+      padding: 80px 24px 48px;
+      position: relative; z-index: 2;
+    }
+    .gallery-hero .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 16px;
+      display: block;
+    }
+    .gallery-hero h1 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .gallery-hero h1 em { font-style: italic; color: var(--teal); }
+    .gallery-hero p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 40px 0 20px;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: "DM Sans", sans-serif;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: var(--teal-glow);
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 60px 0 28px;
+    }
+    .section-label h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .section-tag {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--teal);
+      background: var(--teal-glow);
+      border: 1px solid rgba(0,201,167,0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    /* ── GRID ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    /* ── DESIGN CARD ── */
+    .design-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      position: relative;
+    }
+    .design-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0,201,167,0.2);
+      border-color: rgba(0,201,167,0.25);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      overflow: hidden;
+      height: 220px;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .design-card:hover .card-img-wrap img {
+      transform: scale(1.08);
+    }
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(14,0,32,0.85) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.35s;
+      display: flex; align-items: flex-end; padding: 20px;
+    }
+    .design-card:hover .card-overlay { opacity: 1; }
+
+    /* Climate badge */
+    .climate-badge {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: rgba(14,0,32,0.75);
+      border: 1px solid rgba(0,201,167,0.35);
+      color: var(--teal);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+    }
+
+    .card-body {
+      padding: 20px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-body h5 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text);
+      margin: 0;
+    }
+    .card-body p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 4px 0 0;
+      letter-spacing: 0.04em;
+    }
+
+    .view-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid rgba(0,201,167,0.4);
+      color: var(--teal);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-family: "DM Sans", sans-serif;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.25s;
+    }
+    .view-btn:hover {
+      background: var(--teal);
+      color: var(--ink);
+      border-color: var(--teal);
+    }
+    .view-btn i { font-size: 10px; }
+
+    /* ── WISHLIST PANEL ── */
+    .wishlist-trigger {
+      position: relative;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 18px;
+      transition: color 0.25s;
+      background: none; border: none;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .wishlist-trigger:hover { color: var(--text); }
+    .wishlist-count {
+      position: absolute;
+      top: -8px; right: -10px;
+      background: var(--teal);
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 600;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    .wishlist-panel {
+      position: fixed;
+      top: 80px; right: 24px;
+      width: 300px;
+      background: rgba(20, 5, 40, 0.96);
+      border: 1px solid rgba(0,201,167,0.25);
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      border-radius: 20px;
+      display: none;
+      box-shadow: 0 0 40px rgba(0,201,167,0.12);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 9999;
+    }
+    .wishlist-panel.open { display: block; }
+    .wishlist-panel h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 20px; font-weight: 400;
+      color: var(--teal); margin-bottom: 16px;
+    }
+    #wishlistItems { font-size: 14px; color: var(--muted); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 32px; right: 32px;
+      background: rgba(0,201,167,0.15);
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 10000;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── FOOTER LINE ── */
+    .gallery-footer {
+      text-align: center;
+      padding: 48px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      position: relative; z-index: 2;
+    }
+    .gallery-footer a { color: var(--teal); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width: 768px) {
+      .navbar { padding: 16px 20px; }
+      nav ul { gap: 20px; }
+      .card-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .gallery-hero { padding: 60px 16px 32px; }
+    }
+    @media(max-width: 520px) {
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  
+    
+      .mobile-nav {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        pointer-events: none;
+      }
+      .mobile-nav.open { pointer-events: all; }
+      .mobile-nav-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(14, 0, 32, 0.75);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .mobile-nav.open .mobile-nav-backdrop { opacity: 1; }
+      .mobile-nav-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(300px, 82vw);
+        height: 100%;
+        background: rgba(18, 5, 38, 0.98);
+        border-left: 1px solid rgba(0, 201, 167, 0.15);
+        display: flex;
+        flex-direction: column;
+        padding: 80px 32px 40px;
+        transform: translateX(100%);
+        transition: transform 0.45s cubic-bezier(0.23,1,0.32,1);
+        box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+      }
+      .mobile-nav.open .mobile-nav-panel { transform: translateX(0); }
+      .mobile-nav-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: rgba(232,237,245,0.45);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 8px;
+        transition: color 0.3s;
+        line-height: 1;
+      }
+      .mobile-nav-close:hover { color: #00c9a7; }
+      .mobile-nav-logo {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: var(--text, #e8edf5);
+        text-decoration: none;
+        margin-bottom: 44px;
+        display: block;
+      }
+      .mobile-nav-logo span { color: #00c9a7; }
+      .mobile-nav-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        flex: 1;
+      }
+      .mobile-nav-links li {
+        border-bottom: 1px solid rgba(232,237,245,0.06);
+        transform: translateX(20px);
+        opacity: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+      }
+      .mobile-nav.open .mobile-nav-links li:nth-child(1) { transition-delay:0.08s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(2) { transition-delay:0.14s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(3) { transition-delay:0.20s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(4) { transition-delay:0.26s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(5) { transition-delay:0.32s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(6) { transition-delay:0.38s; transform:translateX(0); opacity:1; }
+      .mobile-nav-links a {
+        display: block;
+        padding: 16px 0;
+        color: rgba(232,237,245,0.45);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.3s, padding-left 0.3s;
+      }
+      .mobile-nav-links a:hover, .mobile-nav-links a.active { color: #00c9a7; padding-left: 8px; }
+      .mobile-nav-login {
+        display: block;
+        margin-top: 32px;
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #3d0070, #00c9a7);
+        color: #fff !important;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+        transition: box-shadow 0.3s, transform 0.3s;
+      }
+      .mobile-nav-login:hover { box-shadow: 0 6px 20px rgba(0,201,167,0.4); transform: translateY(-1px); }
+      .mobile-nav-footer {
+        font-size: 11px;
+        color: rgba(232,237,245,0.18);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-top: 40px;
+      }  
+    </style>
+</head>
+<body>
+
+<!-- AMBIENT CANVAS -->
+<canvas class="ambient" id="ambientCanvas"></canvas>
+
+<!-- HEADER -->
+<header>
+  <div class="navbar">
+    <a href="home.html" class="logo">
+          <img src="logo.jpeg" alt="Norvex Logo" class="logo-img" />
+          <span class="nor">Nor</span><span class="vex">vex</span>
+        </a>
+    <nav>
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="gallery.html" class="active">Gallery</a></li>
+        <li><a href="interior.html">Interior</a></li>
+        <li>
+          <button class="wishlist-trigger" onclick="toggleWishlist()" title="Saved Designs">
+            <i class="fa-solid fa-heart"></i>
+            <span class="wishlist-count" id="wishlist-count">0</span>
+          </button>
+        </li>
+        <li><a href="login.html" class="btn-login">Login</a></li>
+      </ul>
+    </nav>
+       
+</header>
+
+<!-- MAIN -->
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <div class="gallery-hero">
+    <span class="eyebrow">Norvex · Design Gallery</span>
+    <h1>Architecture &amp; <em>Interior</em> Showcase</h1>
+    <p>Explore climate-responsive designs curated for every region — from hot-climate villas to minimal coastal retreats.</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all', this)">All</button>
+    <button class="filter-btn" onclick="filterCards('house', this)">Houses</button>
+    <button class="filter-btn" onclick="filterCards('apartment', this)">Apartments</button>
+    <button class="filter-btn" onclick="filterCards('office', this)">Offices</button>
+    <button class="filter-btn" onclick="filterCards('hot', this)">Hot Climate</button>
+    <button class="filter-btn" onclick="filterCards('cold', this)">Cold Climate</button>
+    <button class="filter-btn" onclick="filterCards('coastal', this)">Coastal</button>
+    <button class="filter-btn" onclick="filterCards('rainy', this)">Rainy</button>
+  </div>
+
+  <!-- ===== HOUSES ===== -->
+  <div class="section-label">
+    <h3>Houses</h3>
+    <span class="section-tag">Residential</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="design-card" data-tags="house hot">
+      <div class="card-img-wrap">
+        <img src="gallery-images/modernvilla.jpg" alt="Modern Villa" loading="lazy"/>
+        <span class="climate-badge">Hot Climate</span>
+        <div class="card-overlay"><a href="modernvilla.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Modern Villa</h5><p>Open plan · Cross ventilation · Marble finish</p></div>
+        <a href="modernvilla.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="house coastal">
+      <div class="card-img-wrap">
+        <img src="gallery-images/minimalhouse.jpg" alt="Minimal House" loading="lazy"/>
+        <span class="climate-badge">Coastal</span>
+        <div class="card-overlay"><a href="minimalhouse.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Minimal House</h5><p>Lightweight structure · Sea-breeze design</p></div>
+        <a href="minimalhouse.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="house cold">
+      <div class="card-img-wrap">
+        <img src="gallery-images/luxury.jpg" alt="Luxury Duplex" loading="lazy"/>
+        <span class="climate-badge">Cold Climate</span>
+        <div class="card-overlay"><a href="luxuryduplex.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Luxury Duplex</h5><p>Insulated walls · Warm wood floors · Premium finish</p></div>
+        <a href="luxuryduplex.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="house rainy">
+      <div class="card-img-wrap">
+        <img src="gallery-images/traditional.jpg" alt="Traditional House" loading="lazy"/>
+        <span class="climate-badge">Rainy</span>
+        <div class="card-overlay"><a href="traditionalhouse.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Traditional House</h5><p>Sloped roof · Anti-slip tiles · Heritage aesthetic</p></div>
+        <a href="traditionalhouse.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="house hot">
+      <div class="card-img-wrap">
+        <img src="gallery-images/futuristic.jpg" alt="Futuristic Home" loading="lazy"/>
+        <span class="climate-badge">Modern Urban</span>
+        <div class="card-overlay"><a href="futuristichouse.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Futuristic Home</h5><p>Smart systems · Glass façade · Modular layout</p></div>
+        <a href="futuristichouse.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="house coastal rainy">
+      <div class="card-img-wrap">
+        <img src="gallery-images/ecofriendly.jpg" alt="Eco-Friendly House" loading="lazy"/>
+        <span class="climate-badge">Sustainable</span>
+        <div class="card-overlay"><a href="ecofriendly.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Eco-Friendly House</h5><p>Solar panels · Rainwater harvesting · Green walls</p></div>
+        <a href="ecofriendly.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== APARTMENTS ===== -->
+  <div class="section-label">
+    <h3>Apartments</h3>
+    <span class="section-tag">Urban Living</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="design-card" data-tags="apartment hot">
+      <div class="card-img-wrap">
+        <img src="gallery-images/modernapartment.jpg" alt="Modern Apartment" loading="lazy"/>
+        <span class="climate-badge">Hot Climate</span>
+        <div class="card-overlay"><a href="modernappartment.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Modern Apartment</h5><p>Compact layout · Ventilated spaces · Neutral palette</p></div>
+        <a href="modernappartment.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="apartment cold">
+      <div class="card-img-wrap">
+        <img src="gallery-images/luxuryapartment.jpg" alt="Luxury Apartment" loading="lazy"/>
+        <span class="climate-badge">Cold Climate</span>
+        <div class="card-overlay"><a href="luxuryapartment.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Luxury Apartment</h5><p>Floor heating · Rich textures · Premium finishes</p></div>
+        <a href="luxuryapartment.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="apartment coastal">
+      <div class="card-img-wrap">
+        <img src="gallery-images/studioapartment.jpg" alt="Studio Apartment" loading="lazy"/>
+        <span class="climate-badge">Coastal</span>
+        <div class="card-overlay"><a href="studioapartment.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Studio Apartment</h5><p>Open plan · Multi-functional · Airy interiors</p></div>
+        <a href="studioapartment.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== OFFICES ===== -->
+  <div class="section-label">
+    <h3>Offices</h3>
+    <span class="section-tag">Workspaces</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="design-card" data-tags="office hot">
+      <div class="card-img-wrap">
+        <img src="gallery-images/corporateoffice.jpg" alt="Corporate Office" loading="lazy"/>
+        <span class="climate-badge">Corporate</span>
+        <div class="card-overlay"><a href="corporate-office.html" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Corporate Office</h5><p>Structured layout · Professional · Climate-controlled</p></div>
+        <a href="corporate-office.html" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="office hot">
+      <div class="card-img-wrap">
+        <img src="gallery-images/startupoffice.jpg" alt="Startup Office" loading="lazy"/>
+        <span class="climate-badge">Modern</span>
+        <div class="card-overlay"><a href="#" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Startup Office</h5><p>Open collaboration · Flexible zones · Dynamic energy</p></div>
+        <a href="#" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="design-card" data-tags="office">
+      <div class="card-img-wrap">
+        <img src="gallery-images/futuristicoffice.jpg" alt="Futuristic Office" loading="lazy"/>
+        <span class="climate-badge">Smart</span>
+        <div class="card-overlay"><a href="#" class="view-btn">View Design <i class="fa fa-arrow-right"></i></a></div>
+      </div>
+      <div class="card-body">
+        <div><h5>Futuristic Office</h5><p>AI-integrated · Glass structures · Innovation-first</p></div>
+        <a href="#" class="view-btn">View <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- FOOTER -->
+<div class="gallery-footer">
+  <p>© 2026 <a href="home.html">Norvex</a> · Intelligent Architecture · All rights reserved</p>
+</div>
+
+<!-- WISHLIST PANEL -->
+<div class="wishlist-panel" id="wishlistPanel">
+  <h3>Saved Designs</h3>
+  <div id="wishlistItems"><p style="color:var(--muted);font-size:13px;">No saved designs yet.</p></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="globalToast"></div>
+
+<!-- ── SCRIPTS ── -->
+<script>
+  /* ── AMBIENT CANVAS ── */
+  const canvas = document.getElementById('ambientCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function randomParticle() {
+    return {
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.5 + 0.3,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      a: Math.random()
+    };
+  }
+  for (let i = 0; i < 120; i++) particles.push(randomParticle());
+
+  function drawAmbient() {
+    ctx.clearRect(0, 0, W, H);
+    // Subtle gradient glow
+    const g = ctx.createRadialGradient(W*0.3, H*0.3, 0, W*0.3, H*0.3, W*0.6);
+    g.addColorStop(0, 'rgba(61,0,112,0.18)');
+    g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,201,167,${p.a * 0.35})`;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > W) p.dx *= -1;
+      if (p.y < 0 || p.y > H) p.dy *= -1;
+    });
+    requestAnimationFrame(drawAmbient);
+  }
+  drawAmbient();
+
+  /* ── FILTER ── */
+  function filterCards(tag, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.design-card').forEach(card => {
+      const tags = card.dataset.tags || '';
+      card.style.display = (tag === 'all' || tags.includes(tag)) ? '' : 'none';
+    });
+  }
+
+  /* ── WISHLIST ── */
+  function toggleWishlist() {
+    const panel = document.getElementById('wishlistPanel');
+    panel.classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('wishlistPanel');
+    if (!panel.contains(e.target) && !e.target.closest('.wishlist-trigger')) {
+      panel.classList.remove('open');
+    }
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('globalToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  /* ── LOAD WISHLIST FROM LOCALSTORAGE ── */
+  function renderWishlist() {
+    const items = JSON.parse(localStorage.getItem('norvex_wishlist') || '[]');
+    document.getElementById('wishlist-count').textContent = items.length;
+    const el = document.getElementById('wishlistItems');
+    if (!items.length) {
+      el.innerHTML = '<p style="color:var(--muted);font-size:13px;">No saved designs yet.</p>';
+      return;
+    }
+    el.innerHTML = items.map(i => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;">${i}</span>
+        <button onclick="removeWishlist('${i}')" style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:12px;">✕</button>
+      </div>`).join('');
+  }
+  function removeWishlist(name) {
+    let items = JSON.parse(localStorage.getItem('norvex_wishlist') || '[]');
+    items = items.filter(i => i !== name);
+    localStorage.setItem('norvex_wishlist', JSON.stringify(items));
+    renderWishlist();
+    showToast('Removed from saved designs.');
+  }
+  renderWishlist();
+</script>
+
+</body>
+</html>

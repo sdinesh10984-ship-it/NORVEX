@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Norvex — Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --teal: #00c9a7;
+        --teal-deep: #007a6b;
+        --purple: #3d0070;
+        --ink: #0e0020;
+        --text: #e8edf5;
+        --muted: rgba(232, 237, 245, 0.45);
+        --surface: rgba(30, 10, 50, 0.75);
+        --border: rgba(0, 201, 167, 0.15);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: linear-gradient(135deg, #0e0020, #1a0035, #130028);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+
+      /* BG orbs */
+      .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(90px);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .orb-1 {
+        width: 500px;
+        height: 500px;
+        background: rgba(61, 0, 112, 0.18);
+        top: -100px;
+        left: -150px;
+        animation: orbFloat 14s ease-in-out infinite;
+      }
+      .orb-2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(0, 201, 167, 0.08);
+        bottom: -80px;
+        right: -100px;
+        animation: orbFloat 10s ease-in-out infinite reverse;
+      }
+      @keyframes orbFloat {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(30px, 25px);
+        }
+      }
+
+      /* Grid bg */
+      .grid-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(0, 201, 167, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 201, 167, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        animation: gridDrift 25s linear infinite;
+      }
+      @keyframes gridDrift {
+        to {
+          background-position: 60px 60px;
+        }
+      }
+
+      /* CARD */
+      .card {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 440px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 48px 44px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
+      }
+      .card-header {
+        text-align: center;
+        margin-bottom: 36px;
+      }
+      .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #f87171;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        padding: 6px 16px;
+        border-radius: 999px;
+        margin-bottom: 20px;
+      }
+      .card-logo {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+      .card-logo span {
+        color: var(--teal);
+      }
+      .card-sub {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* ALERT */
+      .alert {
+        display: none;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* INPUT */
+      .input-group {
+        margin-bottom: 18px;
+      }
+      .input-group label {
+        display: block;
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .input-wrap i.lead {
+        position: absolute;
+        left: 14px;
+        color: rgba(232, 237, 245, 0.3);
+        font-size: 14px;
+        pointer-events: none;
+      }
+      .input-wrap input {
+        width: 100%;
+        padding: 12px 14px 12px 42px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(232, 237, 245, 0.08);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        outline: none;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+      .input-wrap input:focus {
+        border-color: var(--teal);
+        box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.1);
+      }
+      .input-wrap input::placeholder {
+        color: rgba(232, 237, 245, 0.2);
+      }
+      .toggle-pw {
+        position: absolute;
+        right: 14px;
+        cursor: pointer;
+        color: rgba(232, 237, 245, 0.3);
+        font-size: 13px;
+        transition: color 0.2s;
+      }
+      .toggle-pw:hover {
+        color: var(--teal);
+      }
+
+      /* SECURITY KEY */
+      .key-hint {
+        font-size: 11px;
+        color: rgba(239, 68, 68, 0.6);
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* SUBMIT */
+      .btn-submit {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #3d0070, #00c9a7);
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(0, 201, 167, 0.3);
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* BACK LINK */
+      .back-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 24px;
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .back-link:hover {
+        color: var(--teal);
+      }
+
+      /* SECURITY NOTE */
+      .security-note {
+        margin-top: 24px;
+        padding: 14px;
+        background: rgba(239, 68, 68, 0.06);
+        border: 1px solid rgba(239, 68, 68, 0.12);
+        border-radius: 8px;
+        font-size: 11px;
+        color: rgba(239, 68, 68, 0.6);
+        line-height: 1.6;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="grid-bg"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="admin-badge">
+          <i class="fa-solid fa-shield-halved"></i> Admin Access Only
+        </div>
+        <div class="card-logo">Norv<span>ex</span></div>
+        <p class="card-sub">Restricted administrator portal</p>
+      </div>
+
+      <div class="alert" id="alert"></div>
+
+      <div class="input-group">
+        <label>Admin Email</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-envelope lead"></i>
+          <input type="email" id="adminEmail" placeholder="admin@norvex.io" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock lead"></i>
+          <input type="password" id="adminPassword" placeholder="••••••••••" />
+          <i
+            class="fa-solid fa-eye toggle-pw"
+            id="togglePw"
+            onclick="togglePassword()"
+          ></i>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Admin Security Key</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-key lead"></i>
+          <input
+            type="password"
+            id="adminKey"
+            placeholder="Enter secret admin key"
+          />
+        </div>
+        <p class="key-hint">
+          <i class="fa-solid fa-triangle-exclamation"></i> Required — set this
+          in your Firebase config
+        </p>
+      </div>
+
+      <button class="btn-submit" id="loginBtn" onclick="adminLogin()">
+        <i class="fa-solid fa-shield-halved"></i> Access Admin Panel
+      </button>
+
+      <a href="login.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Back to User Login
+      </a>
+
+      <div class="security-note">
+        <i class="fa-solid fa-circle-info"></i>
+        This portal is restricted to authorised administrators only.
+        Unauthorised access attempts are logged.
+      </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+      /* ══════════════════════════════════════════
+   FIREBASE CONFIG — paste your values here
+══════════════════════════════════════════ */
+      const firebaseConfig = {
+        apiKey: "AIzaSyBPvLJVVUt_CnXrAPAMHqhhr1g2qyMhRIA",
+        authDomain: "norvex-87bb6.firebaseapp.com",
+        projectId: "norvex-87bb6",
+        storageBucket: "norvex-87bb6.firebasestorage.app",
+        messagingSenderId: "1080068996726",
+        appId: "1:1080068996726:web:8ceb78df2ed4f27d852957",
+      };
+
+      /* ══════════════════════════════════════════
+   ADMIN SECRET KEY
+   Change this to a strong secret password.
+   Only people who know this key can access admin.
+══════════════════════════════════════════ */
+      const ADMIN_SECRET_KEY = "norvex-admin-2024";
+
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      /* Auto redirect if already logged in as admin */
+      let adminLoginInProgress = false;
+      auth.onAuthStateChanged(async (user) => {
+        var li = document.getElementById('navAuthLi');
+        if (li) li.style.visibility = 'visible';
+        if (!user || adminLoginInProgress) return;
+        const doc = await db.collection("users").doc(user.uid).get();
+        if (doc.exists && doc.data().role === "admin") {
+          window.location.href = "admin-dashboard.html";
+        }
+      });
+
+      function showAlert(msg, type = "error") {
+        const el = document.getElementById("alert");
+        el.style.display = "flex";
+        el.style.background =
+          type === "error" ? "rgba(239,68,68,0.12)" : "rgba(0,201,167,0.12)";
+        el.style.border =
+          type === "error"
+            ? "1px solid rgba(239,68,68,0.3)"
+            : "1px solid rgba(0,201,167,0.3)";
+        el.style.color = type === "error" ? "#f87171" : "#00c9a7";
+        el.innerHTML = `<i class="fa-solid fa-${type === "error" ? "circle-exclamation" : "circle-check"}"></i> ${msg}`;
+      }
+
+      function setLoading(on) {
+        const btn = document.getElementById("loginBtn");
+        btn.disabled = on;
+        btn.innerHTML = on
+          ? '<i class="fa-solid fa-spinner fa-spin"></i> Verifying…'
+          : '<i class="fa-solid fa-shield-halved"></i> Access Admin Panel';
+      }
+
+      async function adminLogin() {
+        const email = document.getElementById("adminEmail").value.trim();
+        const pass = document.getElementById("adminPassword").value;
+        const key = document.getElementById("adminKey").value.trim();
+
+        if (!email || !pass || !key) {
+          showAlert("All fields are required.");
+          return;
+        }
+        if (key !== ADMIN_SECRET_KEY) {
+          showAlert("Invalid admin security key.");
+          return;
+        }
+
+        setLoading(true);
+        try {
+          adminLoginInProgress = true;
+          const cred = await auth.signInWithEmailAndPassword(email, pass);
+          /* Check Firestore role */
+          const doc = await db.collection("users").doc(cred.user.uid).get();
+          if (!doc.exists || doc.data().role !== "admin") {
+            await auth.signOut();
+            showAlert(
+              "Access denied. This account does not have admin privileges.",
+            );
+            setLoading(false);
+            return;
+          }
+          showAlert("Admin verified! Redirecting…", "success");
+          setTimeout(
+            () => (window.location.href = "admin-dashboard.html"),
+            1000,
+          );
+        } catch (err) {
+          setLoading(false);
+          const msgs = {
+            "auth/user-not-found": "No admin account found with this email.",
+            "auth/wrong-password": "Incorrect password.",
+            "auth/invalid-credential": "Invalid email or password.",
+            "auth/too-many-requests": "Too many attempts. Try again later.",
+          };
+          showAlert(msgs[err.code] || "Login failed: " + err.message);
+        }
+      }
+
+      function togglePassword() {
+        const inp = document.getElementById("adminPassword");
+        const ico = document.getElementById("togglePw");
+        if (inp.type === "password") {
+          inp.type = "text";
+          ico.className = "fa-solid fa-eye-slash toggle-pw";
+        } else {
+          inp.type = "password";
+          ico.className = "fa-solid fa-eye toggle-pw";
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") adminLogin();
+      });
+    </script>
+  </body>
+</html>
