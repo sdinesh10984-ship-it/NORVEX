@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traditional House — Interior Experience | Norvex</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    :root {
+      --teal: #00c9a7;
+      --teal-deep: #007a6b;
+      --teal-glow: rgba(0, 201, 167, 0.18);
+      --ink: #0e0020;
+      --text: #e8edf5;
+      --muted: rgba(232, 237, 245, 0.45);
+      --surface: rgba(30, 10, 50, 0.6);
+      --border: rgba(232, 237, 245, 0.08);
+      --purple: #3d0070;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+    header{position:sticky;top:0;z-index:100;background:rgba(25,8,45,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(61,0,112,0.5);}
+    .navbar{display:flex;justify-content:space-between;align-items:center;padding:18px 48px;max-width:1400px;margin:auto;}
+    .logo{display:inline-flex;align-items:center;gap:3px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;letter-spacing:0.08em;color:var(--text);text-decoration:none;font-kerning:none;transition:letter-spacing 0.35s ease,color 0.35s ease;}
+    .logo:hover{letter-spacing:0.14em;color:rgba(232,237,245,0.9);}
+    .nor{color:white;}
+    .vex{color:var(--teal);margin-left:-2px;}
+    .logo-img{width:44px;height:44px;object-fit:contain;border-radius:20px;margin-right:8px;filter:brightness(1.1);transition:transform 0.35s ease,filter 0.35s ease,box-shadow 0.35s ease;}
+    .logo:hover .logo-img{transform:scale(1.12) rotate(-3deg);filter:brightness(1.3) drop-shadow(0 0 10px rgba(12,185,192,0.6));}
+    .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.25s;border:1px solid rgba(0,201,167,0.25);padding:8px 18px;border-radius:999px;}
+    .back-link:hover{color:var(--teal);border-color:var(--teal);}
+    .hero{position:relative;z-index:1;text-align:center;padding:80px 24px 52px;}
+    .hero-eyebrow{font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:16px;}
+    .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,72px);font-weight:300;line-height:1.1;color:var(--text);}
+    .hero h1 em{color:var(--teal);font-style:italic;}
+    .hero-divider{width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent);margin:22px auto 16px;}
+    .hero-sub{font-size:14px;color:var(--muted);letter-spacing:0.04em;max-width:520px;margin:0 auto;line-height:1.7;}
+    .chips-wrap{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:0 24px 52px;}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border:1px solid rgba(0,201,167,0.35);border-radius:999px;background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.25s;letter-spacing:0.06em;text-transform:uppercase;}
+    .chip:hover,.chip.active{background:var(--teal);color:var(--ink);border-color:var(--teal);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,201,167,0.35);}
+    .room-section{display:none;position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 32px 80px;animation:fadeUp 0.5s ease both;}
+    .room-section.active{display:block;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+    .room-header{text-align:center;margin-bottom:40px;}
+    .room-header h2{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--text);}
+    .room-header h2 em{color:var(--teal);font-style:italic;}
+    .room-header p{font-size:13px;color:var(--muted);margin-top:6px;}
+    .img-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;}
+    .img-card{border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--surface);transition:all 0.35s;}
+    .img-card:hover{transform:translateY(-8px);border-color:rgba(0,201,167,0.25);box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(0,201,167,0.2);}
+    .img-card img{width:100%;height:240px;object-fit:cover;display:block;transition:transform 0.5s ease;}
+    .img-card:hover img{transform:scale(1.08);}
+    .img-caption{padding:18px 20px 20px;}
+    .img-caption h4{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--teal);margin-bottom:6px;}
+    .img-caption p{font-size:12px;color:var(--muted);line-height:1.7;}
+    .detail-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+    .dtag{padding:3px 11px;background:var(--teal-glow);border:1px solid rgba(0,201,167,0.25);border-radius:999px;font-size:11px;color:var(--teal);letter-spacing:0.06em;}
+    .cta-bar{position:relative;z-index:1;text-align:center;padding:48px;border:1px solid rgba(0,201,167,0.2);border-radius:20px;background:rgba(61,0,112,0.15);max-width:1280px;margin:0 auto 80px;backdrop-filter:blur(10px);}
+    .cta-bar h3{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--text);margin-bottom:10px;}
+    .cta-bar p{font-size:13px;color:var(--muted);margin-bottom:26px;line-height:1.7;}
+    .cta-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 38px;background:linear-gradient(135deg,#3d0070,#00c9a7);border:none;border-radius:999px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;transition:all 0.3s;}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,201,167,0.4);}
+    @media(max-width:640px){.navbar{padding:14px 20px;}.hero{padding:56px 16px 36px;}.chips-wrap{padding:0 16px 36px;}.room-section{padding:0 16px 60px;}.img-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header>
+  <div class="navbar">
+    <a href="home.html" class="logo">
+      <img src="logo.jpeg" alt="Norvex" class="logo-img">
+      <span class="nor">Nor</span><span class="vex">vex</span>
+    </a>
+    <a href="traditionalhouse.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Traditional House</a>
+  </div>
+</header>
+<div class="hero">
+  <span class="hero-eyebrow">Interior Experience</span>
+  <h1>Traditional <em>House</em> Interiors</h1>
+  <div class="hero-divider"></div>
+  <p class="hero-sub">Rainy climate · Traditional style · Heritage aesthetics, anti-slip tiles · Choose a room below</p>
+</div>
+<div class="chips-wrap">
+  <button class="chip active" onclick="showRoom('living',this)"><i class="fa-solid fa-couch"></i> Living Room</button>
+  <button class="chip" onclick="showRoom('bedroom',this)"><i class="fa-solid fa-bed"></i> Bedroom</button>
+  <button class="chip" onclick="showRoom('kitchen',this)"><i class="fa-solid fa-kitchen-set"></i> Kitchen</button>
+  <button class="chip" onclick="showRoom('bathroom',this)"><i class="fa-solid fa-bath"></i> Bathroom</button>
+</div>
+
+<!-- LIVING -->
+<div class="room-section active" id="room-living">
+  <div class="room-header"><h2>Living Room — <em>Traditional House</em></h2><p>Wooden beams, warm earthy tones, heritage craftsmanship · ₹1.5L – ₹3L</p></div>
+  <div class="img-grid">
+    <div class="img-card"><img src="mv\heritagelr.jpg" alt=""><div class="img-caption"><h4>Heritage Living Hall</h4><p>Exposed wooden ceiling beams, terracotta floor tiles, woven cane sofa, brass lamps and hand-painted wall art.</p><div class="detail-tags"><span class="dtag">Wooden Beams</span><span class="dtag">Terracotta</span><span class="dtag">Brass Lamps</span></div></div></div>
+    <div class="img-card"><img src="mv\keralalr.jpg" alt=""><div class="img-caption"><h4>Kerala Style Sitting</h4><p>Teak wood furniture, jali screens, clay pot décor, antique brass accents and handloom curtains.</p><div class="detail-tags"><span class="dtag">Teak Wood</span><span class="dtag">Jali Screen</span><span class="dtag">Handloom</span></div></div></div>
+    <div class="img-card"><img src="mv\courtyardlr.jpg" alt=""><div class="img-caption"><h4>Courtyard Living</h4><p>Central courtyard view, stone flooring, wooden columns, wicker furniture arranged around a central feature.</p><div class="detail-tags"><span class="dtag">Stone Floor</span><span class="dtag">Courtyard</span><span class="dtag">Wicker</span></div></div></div>
+    <div class="img-card"><img src="mv\rajalr.jpg" alt=""><div class="img-caption"><h4>Rajasthani Inspired</h4><p>Arched doorways, mirror inlay wall panels, low jaipuri seating, embroidered cushions in jewel tones.</p><div class="detail-tags"><span class="dtag">Arched Doors</span><span class="dtag">Mirror Inlay</span><span class="dtag">Jewel Tones</span></div></div></div>
+  </div>
+</div>
+
+<!-- BEDROOM -->
+<div class="room-section" id="room-bedroom">
+  <div class="room-header"><h2>Bedroom — <em>Traditional House</em></h2><p>Four-poster bed, hand-carved wood, antique warmth · ₹1.2L – ₹2.5L</p></div>
+  <div class="img-grid">
+    <div class="img-card"><img src="mv\fourbr.jpg" alt=""><div class="img-caption"><h4>Four-Poster Bedroom</h4><p>Hand-carved teak four-poster bed, sheer drapes, block-print bedspread, brass urli and traditional lamp.</p><div class="detail-tags"><span class="dtag">Four-Poster</span><span class="dtag">Block Print</span><span class="dtag">Teak</span></div></div></div>
+    <div class="img-card"><img src="mv\ancestralbr.jpg" alt=""><div class="img-caption"><h4>Ancestral Master Room</h4><p>Antique dresser, wooden flooring, vintage rug, carved wardrobe doors, warm incandescent lighting.</p><div class="detail-tags"><span class="dtag">Antique Dresser</span><span class="dtag">Vintage Rug</span><span class="dtag">Carved Wardrobe</span></div></div></div>
+    <div class="img-card"><img src="mv\heritagebr.jpg" alt=""><div class="img-caption"><h4>Heritage Bedroom</h4><p>Mud plaster walls, cane bed, embroidered bolster pillows, clay pot planter on window sill.</p><div class="detail-tags"><span class="dtag">Mud Plaster</span><span class="dtag">Cane Bed</span><span class="dtag">Embroidered</span></div></div></div>
+    <div class="img-card"><img src="mv\southbr.jpg" alt=""><div class="img-caption"><h4>South Indian Style</h4><p>Kolam-inspired floor pattern, wooden ceiling fan, cotton weave bedding, window seat with cushion.</p><div class="detail-tags"><span class="dtag">Kolam Pattern</span><span class="dtag">Ceiling Fan</span><span class="dtag">Cotton Weave</span></div></div></div>
+  </div>
+</div>
+
+<!-- KITCHEN -->
+<div class="room-section" id="room-kitchen">
+  <div class="room-header"><h2>Kitchen — <em>Traditional House</em></h2><p>Stone counter, open shelves, copper & clay · ₹1L – ₹2.5L</p></div>
+  <div class="img-grid">
+    <div class="img-card"><img src="mv\vastukit.jpg" alt=""><div class="img-caption"><h4>Vastu Kitchen</h4><p>South-east oriented layout, granite counter, open shelves with copper utensils, clay tile backsplash.</p><div class="detail-tags"><span class="dtag">Granite Counter</span><span class="dtag">Copper</span><span class="dtag">Clay Tile</span></div></div></div>
+    <div class="img-card"><img src="mv\openhkit.jpg" alt=""><div class="img-caption"><h4>Open Hearth Kitchen</h4><p>Wood-fire cooking alcove, stone floor, hanging brass vessels, hand-painted ceramic tiles on walls.</p><div class="detail-tags"><span class="dtag">Stone Floor</span><span class="dtag">Brass Vessels</span><span class="dtag">Hand-Painted</span></div></div></div>
+    <div class="img-card"><img src="mv\heritagekit.jpg" alt=""><div class="img-caption"><h4>Heritage Modular</h4><p>Warm wood-tone cabinets, terracotta splash, traditional handles, window above sink looking to garden.</p><div class="detail-tags"><span class="dtag">Wood Tone</span><span class="dtag">Terracotta</span><span class="dtag">Garden Window</span></div></div></div>
+    <div class="img-card"><img src="mv\openckit.jpg" alt=""><div class="img-caption"><h4>Nalukettu Kitchen</h4><p>Open courtyard kitchen, anti-slip Athangudi tiles, stone slab counter, woven bamboo baskets for storage.</p><div class="detail-tags"><span class="dtag">Athangudi Tiles</span><span class="dtag">Stone Slab</span><span class="dtag">Bamboo</span></div></div></div>
+  </div>
+</div>
+
+<!-- BATHROOM -->
+<div class="room-section" id="room-bathroom">
+  <div class="room-header"><h2>Bathroom — <em>Traditional House</em></h2><p>Anti-slip stone, copper fixtures, rain-ready design · ₹60K – ₹1.2L</p></div>
+  <div class="img-grid">
+    <div class="img-card"><img src="mv\stonecham.jpg" alt=""><div class="img-caption"><h4>Stone Bath Chamber</h4><p>Rough-cut stone walls, copper head shower, stone basin on wooden vanity, anti-slip pebble floor.</p><div class="detail-tags"><span class="dtag">Stone Walls</span><span class="dtag">Copper Shower</span><span class="dtag">Pebble Floor</span></div></div></div>
+    <div class="img-card"><img src="mv\kolambar.jpg" alt=""><div class="img-caption"><h4>Kolam Tile Bathroom</h4><p>Hand-painted encaustic tiles, wooden mirror frame, brass taps, ventilated window for rainy climate airflow.</p><div class="detail-tags"><span class="dtag">Encaustic Tiles</span><span class="dtag">Brass Taps</span><span class="dtag">Ventilated</span></div></div></div>
+    <div class="img-card"><img src="mv\chettinad.jpg" alt=""><div class="img-caption"><h4>Chettinad Bathroom</h4><p>Athangudi tile floor, plaster walls in lime wash, copper bucket shower, wooden stool and neem basin.</p><div class="detail-tags"><span class="dtag">Lime Wash</span><span class="dtag">Bucket Shower</span><span class="dtag">Chettinad</span></div></div></div>
+    <div class="img-card"><img src="mv\outbar.jpg" alt=""><div class="img-caption"><h4>Outdoor-Feel Bathroom</h4><p>Sky window, fern planters, stone trough basin, rainfall drain in central floor — rainy-climate optimised.</p><div class="detail-tags"><span class="dtag">Sky Window</span><span class="dtag">Fern Planters</span><span class="dtag">Central Drain</span></div></div></div>
+  </div>
+</div>
+
+<div class="cta-bar">
+  <h3>Want to customise your <em style="color:var(--teal);font-style:italic;color:var(--teal)">own interior?</em></h3>
+  <p>Use the full AI Interior Builder to pick your region, climate, room and style</p>
+  <a href="interior.html" class="cta-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Open Interior Builder</a>
+</div>
+<script>
+
+function showRoom(id,el){
+  document.querySelectorAll('.room-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('room-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('room-'+id).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+function rp(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,dx:(Math.random()-0.5)*0.35,dy:(Math.random()-0.5)*0.35,a:Math.random()};}
+for(let i=0;i<120;i++)particles.push(rp());
+function drawAmbient(){
+  ctx.clearRect(0,0,W,H);
+  const g=ctx.createRadialGradient(W*0.3,H*0.3,0,W*0.3,H*0.3,W*0.6);
+  g.addColorStop(0,'rgba(61,0,112,0.18)');g.addColorStop(1,'transparent');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  particles.forEach(p=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,201,167,${p.a*0.4})`;ctx.fill();
+    p.x+=p.dx;p.y+=p.dy;
+    if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;
+  });
+  for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){
+    const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(0,201,167,${0.06*(1-d/120)})`;ctx.stroke();}
+  }
+  requestAnimationFrame(drawAmbient);
+}
+drawAmbient();
+
+</script>
+</body>
+</html>

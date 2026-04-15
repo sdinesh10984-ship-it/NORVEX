@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Villa — Interior Experience | Norvex</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    :root {
+      --teal: #00c9a7;
+      --teal-deep: #007a6b;
+      --teal-glow: rgba(0, 201, 167, 0.18);
+      --ink: #0e0020;
+      --text: #e8edf5;
+      --muted: rgba(232, 237, 245, 0.45);
+      --surface: rgba(30, 10, 50, 0.6);
+      --border: rgba(232, 237, 245, 0.08);
+      --purple: #3d0070;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+    header{position:sticky;top:0;z-index:100;background:rgba(25,8,45,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(61,0,112,0.5);}
+    .navbar{display:flex;justify-content:space-between;align-items:center;padding:18px 48px;max-width:1400px;margin:auto;}
+    .logo{display:inline-flex;align-items:center;gap:3px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;letter-spacing:0.08em;color:var(--text);text-decoration:none;font-kerning:none;transition:letter-spacing 0.35s ease,color 0.35s ease;}
+    .logo:hover{letter-spacing:0.14em;color:rgba(232,237,245,0.9);}
+    .nor{color:white;}
+    .vex{color:var(--teal);margin-left:-2px;}
+    .logo-img{width:44px;height:44px;object-fit:contain;border-radius:20px;margin-right:8px;filter:brightness(1.1);transition:transform 0.35s ease,filter 0.35s ease,box-shadow 0.35s ease;}
+    .logo:hover .logo-img{transform:scale(1.12) rotate(-3deg);filter:brightness(1.3) drop-shadow(0 0 10px rgba(12,185,192,0.6));}
+    .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.25s;border:1px solid rgba(0,201,167,0.25);padding:8px 18px;border-radius:999px;}
+    .back-link:hover{color:var(--teal);border-color:var(--teal);}
+    .hero{position:relative;z-index:1;text-align:center;padding:80px 24px 52px;}
+    .hero-eyebrow{font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:16px;}
+    .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,72px);font-weight:300;line-height:1.1;color:var(--text);}
+    .hero h1 em{color:var(--teal);font-style:italic;}
+    .hero-divider{width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent);margin:22px auto 16px;}
+    .hero-sub{font-size:14px;color:var(--muted);letter-spacing:0.04em;max-width:520px;margin:0 auto;line-height:1.7;}
+    .chips-wrap{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:0 24px 52px;}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border:1px solid rgba(0,201,167,0.35);border-radius:999px;background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.25s;letter-spacing:0.06em;text-transform:uppercase;}
+    .chip:hover,.chip.active{background:var(--teal);color:var(--ink);border-color:var(--teal);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,201,167,0.35);}
+    .room-section{display:none;position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 32px 80px;animation:fadeUp 0.5s ease both;}
+    .room-section.active{display:block;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+    .room-header{text-align:center;margin-bottom:40px;}
+    .room-header h2{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--text);}
+    .room-header h2 em{color:var(--teal);font-style:italic;}
+    .room-header p{font-size:13px;color:var(--muted);margin-top:6px;}
+    .img-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;}
+    .img-card{border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--surface);transition:all 0.35s;}
+    .img-card:hover{transform:translateY(-8px);border-color:rgba(0,201,167,0.25);box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(0,201,167,0.2);}
+    .img-card img{width:100%;height:240px;object-fit:cover;display:block;transition:transform 0.5s ease;}
+    .img-card:hover img{transform:scale(1.08);}
+    .img-caption{padding:18px 20px 20px;}
+    .img-caption h4{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--teal);margin-bottom:6px;}
+    .img-caption p{font-size:12px;color:var(--muted);line-height:1.7;}
+    .detail-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+    .dtag{padding:3px 11px;background:var(--teal-glow);border:1px solid rgba(0,201,167,0.25);border-radius:999px;font-size:11px;color:var(--teal);letter-spacing:0.06em;}
+    .cta-bar{position:relative;z-index:1;text-align:center;padding:48px;border:1px solid rgba(0,201,167,0.2);border-radius:20px;background:rgba(61,0,112,0.15);max-width:1280px;margin:0 auto 80px;backdrop-filter:blur(10px);}
+    .cta-bar h3{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--text);margin-bottom:10px;}
+    .cta-bar p{font-size:13px;color:var(--muted);margin-bottom:26px;line-height:1.7;}
+    .cta-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 38px;background:linear-gradient(135deg,#3d0070,#00c9a7);border:none;border-radius:999px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;transition:all 0.3s;}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,201,167,0.4);}
+    @media(max-width:640px){.navbar{padding:14px 20px;}.hero{padding:56px 16px 36px;}.chips-wrap{padding:0 16px 36px;}.room-section{padding:0 16px 60px;}.img-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<!-- HEADER -->
+<header>
+  <div class="navbar">
+    <a href="home.html" class="logo">
+      <img src="logo.jpeg" alt="Norvex" class="logo-img">
+      <span class="nor">Nor</span><span class="vex">vex</span>
+    </a>
+    <a href="modernvilla.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Modern Villa</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-eyebrow">Interior Experience</span>
+  <h1>Modern <em>Villa</em> Interiors</h1>
+  <div class="hero-divider"></div>
+  <p class="hero-sub">Hot climate · Modern style · Open plan living · Choose a room below</p>
+</div>
+
+<!-- ROOM CHIPS -->
+<div class="chips-wrap">
+  <button class="chip active" onclick="showRoom('living', this)">
+    <i class="fa-solid fa-couch"></i> Living Room
+  </button>
+  <button class="chip" onclick="showRoom('bedroom', this)">
+    <i class="fa-solid fa-bed"></i> Bedroom
+  </button>
+  <button class="chip" onclick="showRoom('kitchen', this)">
+    <i class="fa-solid fa-kitchen-set"></i> Kitchen
+  </button>
+  <button class="chip" onclick="showRoom('bathroom', this)">
+    <i class="fa-solid fa-bath"></i> Bathroom
+  </button>
+</div>
+
+<!-- ══ LIVING ROOM ══ -->
+<div class="room-section active" id="room-living">
+  <div class="room-header">
+    <h2>Living Room — <em>Modern Villa</em></h2>
+    <p>Open plan, marble flooring, cross-ventilation · ₹1L – ₹2.5L</p>
+  </div>
+  <div class="img-grid">
+    <div class="img-card">
+      <img src="mv\openlr.jpg" alt="Open Plan Living">
+      <div class="img-caption">
+        <h4>Open Plan Living</h4>
+        <p>Floor-to-ceiling windows, marble flooring, neutral palette with teal accents for a modern hot-climate home.</p>
+        <div class="detail-tags"><span class="dtag">Marble Floor</span><span class="dtag">Open Plan</span><span class="dtag">Natural Light</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\lounge.jpg" alt="Contemporary Lounge">
+      <div class="img-caption">
+        <h4>Contemporary Lounge</h4>
+        <p>Sectional sofa, recessed lighting, minimal décor. Cross-ventilated layout keeps the space cool naturally.</p>
+        <div class="detail-tags"><span class="dtag">Sectional Sofa</span><span class="dtag">Recessed Lighting</span><span class="dtag">Minimal</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\glasslr.jpg" alt="Glass & Steel">
+      <div class="img-caption">
+        <h4>Glass & Steel Interiors</h4>
+        <p>Industrial accents, exposed concrete feature wall, statement pendant lighting and large glass facade.</p>
+        <div class="detail-tags"><span class="dtag">Concrete Wall</span><span class="dtag">Glass Facade</span><span class="dtag">Industrial</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\villalr.jpg" alt="Villa Living Space">
+      <div class="img-caption">
+        <h4>Villa Living Space</h4>
+        <p>Light wood tones, large sliding doors opening to garden, strategically placed for maximum air circulation.</p>
+        <div class="detail-tags"><span class="dtag">Wood Accents</span><span class="dtag">Sliding Doors</span><span class="dtag">Garden View</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BEDROOM ══ -->
+<div class="room-section" id="room-bedroom">
+  <div class="room-header">
+    <h2>Bedroom — <em>Modern Villa</em></h2>
+    <p>King suite, blackout drapes, climate-smart ventilation · ₹1L – ₹2L</p>
+  </div>
+  <div class="img-grid">
+    <div class="img-card">
+      <img src="mv\masterbr.jpg" alt="Master Suite">
+      <div class="img-caption">
+        <h4>Master Suite</h4>
+        <p>King bed with upholstered headboard, blackout drapes, warm ambient lighting and a walk-in wardrobe.</p>
+        <div class="detail-tags"><span class="dtag">King Bed</span><span class="dtag">Walk-in Wardrobe</span><span class="dtag">Warm Lighting</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\retreatbr.jpg" alt="Modern Retreat">
+      <div class="img-caption">
+        <h4>Modern Retreat</h4>
+        <p>Minimalist floating headboard, bedside tables flush with the wall, climate-smart louver ventilation above.</p>
+        <div class="detail-tags"><span class="dtag">Floating Furniture</span><span class="dtag">Minimalist</span><span class="dtag">Louver Vent</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\villabr.jpg" alt="Villa Bedroom">
+      <div class="img-caption">
+        <h4>Villa Bedroom</h4>
+        <p>Earthy beige tones, textured wall panel behind bed, soft area rug and pendant lights on either side.</p>
+        <div class="detail-tags"><span class="dtag">Earthy Tones</span><span class="dtag">Textured Wall</span><span class="dtag">Pendant Lights</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\guestbr.jpg" alt="Guest Bedroom">
+      <div class="img-caption">
+        <h4>Guest Bedroom</h4>
+        <p>Compact and smart — built-in storage under bed, natural light from high windows, calm neutral palette.</p>
+        <div class="detail-tags"><span class="dtag">Built-in Storage</span><span class="dtag">High Windows</span><span class="dtag">Neutral Palette</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KITCHEN ══ -->
+<div class="room-section" id="room-kitchen">
+  <div class="room-header">
+    <h2>Kitchen — <em>Modern Villa</em></h2>
+    <p>Handleless cabinets, quartz countertop, smart appliances · ₹1.5L – ₹3L</p>
+  </div>
+  <div class="img-grid">
+    <div class="img-card">
+      <img src="mv\modernkit.jpg" alt="Modern Kitchen">
+      <div class="img-caption">
+        <h4>Modern Kitchen</h4>
+        <p>Handleless gloss cabinets, quartz countertop with waterfall edge, under-cabinet LED strips for task lighting.</p>
+        <div class="detail-tags"><span class="dtag">Handleless</span><span class="dtag">Quartz Top</span><span class="dtag">LED Strips</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\openkit.jpg" alt="Open Kitchen">
+      <div class="img-caption">
+        <h4>Open Kitchen</h4>
+        <p>Central island with breakfast counter, high-gloss finish, stainless steel appliances and pendant lights above.</p>
+        <div class="detail-tags"><span class="dtag">Island Counter</span><span class="dtag">High Gloss</span><span class="dtag">SS Appliances</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\villakit.jpg" alt="Villa Kitchen">
+      <div class="img-caption">
+        <h4>Villa Kitchen</h4>
+        <p>White on white palette, marble backsplash, integrated smart appliances for a seamless clean look.</p>
+        <div class="detail-tags"><span class="dtag">Marble Backsplash</span><span class="dtag">Smart Appliances</span><span class="dtag">White Palette</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\chefkit.jpg" alt="Chef's Kitchen">
+      <div class="img-caption">
+        <h4>Chef's Kitchen</h4>
+        <p>Double sink, deep pull-out drawers, pendant lights over island and a breakfast bar for casual dining.</p>
+        <div class="detail-tags"><span class="dtag">Double Sink</span><span class="dtag">Pull-out Drawers</span><span class="dtag">Breakfast Bar</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BATHROOM ══ -->
+<div class="room-section" id="room-bathroom">
+  <div class="room-header">
+    <h2>Bathroom — <em>Modern Villa</em></h2>
+    <p>Rain shower, freestanding tub, anti-slip stone · ₹60K – ₹1.2L</p>
+  </div>
+  <div class="img-grid">
+    <div class="img-card">
+      <img src="mv\masterbar.jpg" alt="Master Bathroom">
+      <div class="img-caption">
+        <h4>Master Bathroom</h4>
+        <p>Freestanding soaking tub, overhead rain shower, floor-to-ceiling wall tiles, warm ambient lighting.</p>
+        <div class="detail-tags"><span class="dtag">Freestanding Tub</span><span class="dtag">Rain Shower</span><span class="dtag">Full Height Tiles</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\modernwetbar.jpg" alt="Modern Wet Room">
+      <div class="img-caption">
+        <h4>Modern Wet Room</h4>
+        <p>Open frameless shower, floating vanity, large backlit mirror, anti-slip stone floor throughout.</p>
+        <div class="detail-tags"><span class="dtag">Floating Vanity</span><span class="dtag">Backlit Mirror</span><span class="dtag">Stone Floor</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\villabar.jpg" alt="Villa Bathroom">
+      <div class="img-caption">
+        <h4>Villa Bathroom</h4>
+        <p>Dual sinks with vessel basins, mosaic tile accent wall, smart faucets and under-floor heating.</p>
+        <div class="detail-tags"><span class="dtag">Dual Sinks</span><span class="dtag">Mosaic Tiles</span><span class="dtag">Smart Faucets</span></div>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="mv\spabar.jpg" alt="Spa Inspired">
+      <div class="img-caption">
+        <h4>Spa Inspired</h4>
+        <p>Natural stone finishes, bamboo shelf, deep soaking tub positioned to enjoy the garden view.</p>
+        <div class="detail-tags"><span class="dtag">Natural Stone</span><span class="dtag">Soaking Tub</span><span class="dtag">Garden View</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-bar">
+  <h3>Want to customise your <em style="color:var(--teal);font-style:italic;color:var(--teal)">own interior?</em></h3>
+  <p>Use the full AI Interior Builder to pick your region, climate, room and style</p>
+  <a href="interior.html" class="cta-btn">
+    <i class="fa-solid fa-wand-magic-sparkles"></i> Open Interior Builder
+  </a>
+</div>
+
+<script>
+
+function showRoom(id,el){
+  document.querySelectorAll('.room-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('room-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('room-'+id).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+function rp(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,dx:(Math.random()-0.5)*0.35,dy:(Math.random()-0.5)*0.35,a:Math.random()};}
+for(let i=0;i<120;i++)particles.push(rp());
+function drawAmbient(){
+  ctx.clearRect(0,0,W,H);
+  const g=ctx.createRadialGradient(W*0.3,H*0.3,0,W*0.3,H*0.3,W*0.6);
+  g.addColorStop(0,'rgba(61,0,112,0.18)');g.addColorStop(1,'transparent');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  particles.forEach(p=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,201,167,${p.a*0.4})`;ctx.fill();
+    p.x+=p.dx;p.y+=p.dy;
+    if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;
+  });
+  for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){
+    const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(0,201,167,${0.06*(1-d/120)})`;ctx.stroke();}
+  }
+  requestAnimationFrame(drawAmbient);
+}
+drawAmbient();
+
+</script>
+</body>
+</html>
