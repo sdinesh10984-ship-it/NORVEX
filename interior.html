@@ -2426,7 +2426,7 @@ Rules:
 - Focus only on highlights`;
 
             const response = await fetch(
-              "/.netlify/functions/generate-description",
+              "/api/generate-description",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
