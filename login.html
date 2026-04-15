@@ -145,15 +145,16 @@
         color: var(--teal); /* change to any color you want */
       }
       .logo {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 12px;
+        gap: 3px;
         font-family: "Cormorant Garamond", serif;
         font-size: 22px;
         font-weight: 600;
         letter-spacing: 0.08em;
         color: var(--text);
         text-decoration: none;
+        font-kerning: none;
       }
       .logo-img {
         width: 44px;
@@ -166,6 +167,13 @@
           transform 0.35s ease,
           filter 0.35s ease,
           box-shadow 0.35s ease;
+      }
+      .logo:hover .logo-img {
+        transform: scale(1.12) rotate(-3deg);
+        filter: brightness(1.3) drop-shadow(0 0 10px rgba(0, 201, 167, 0.6));
+      }
+      .logo:hover {
+        letter-spacing: 0.14em;
       }
       nav ul {
         display: flex;
@@ -736,13 +744,13 @@
 
     <header>
       <div class="navbar">
-       <a href="home.html" class="logo">
+       <a href="index.html" class="logo">
           <img src="logo.jpeg" alt="Norvex Logo" class="logo-img" />
           <span class="nor">Nor</span><span class="vex">vex</span>
         </a>
         <nav>
           <ul>
-            <li><a href="home.html">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About Us</a></li>
             <li><a href="gallery.html">Gallery</a></li>
             <li><a href="interior.html">Interior</a></li>
@@ -861,7 +869,7 @@
       const params = new URLSearchParams(window.location.search);
       const from = params.get('from');
       // Whitelist — only allow known pages to prevent open redirect
-      const allowed = ['home.html','about.html','interior.html','visualizer.html','room3d.html','pdf-export.html'];
+      const allowed = ['index.html','about.html','interior.html','visualizer.html','room3d.html','pdf-export.html'];
       return (from && allowed.includes(from)) ? from : 'interior.html';
     }
 
