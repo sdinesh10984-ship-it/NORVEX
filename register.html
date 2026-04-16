@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register | Norvex</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
@@ -14,6 +15,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
 <link rel="icon" type="image/png" href="logo.jpeg" />
+    <link rel="prefetch" href="interior.html" />
     <style>
       :root {
         --teal: #00c9a7;
@@ -92,6 +94,7 @@
         filter: blur(80px);
         pointer-events: none;
         animation: orbFloat 12s ease-in-out infinite;
+        will-change: transform;
       }
       .orb-1 {
         width: 500px;
@@ -143,6 +146,14 @@
         padding: 0;
         margin-left: -2px;
         color: var(--teal); /* change to any color you want */
+      }
+       .nor {
+        color: white;
+      }
+      .vex {
+        padding: 0;
+        margin-left: -2px;
+        color: var(--teal);
       }
       .logo {
         display: inline-flex;
@@ -580,7 +591,153 @@
           order: 1;
         }
       }
-    </style>
+
+      /* ── HAMBURGER MENU ── */
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        gap: 5px;
+        background: none;
+        border: none;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background 0.3s;
+        z-index: 1100;
+      }
+      .hamburger:hover { background: rgba(0,201,167,0.08); }
+      .hamburger span {
+        display: block;
+        width: 24px;
+        height: 1.5px;
+        background: var(--text);
+        border-radius: 2px;
+        transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), opacity 0.3s, width 0.3s;
+        transform-origin: center;
+      }
+      .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+      .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+      .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+      .mobile-nav {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        pointer-events: none;
+      }
+      .mobile-nav.open { pointer-events: all; }
+      .mobile-nav-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(14, 0, 32, 0.75);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .mobile-nav.open .mobile-nav-backdrop { opacity: 1; }
+      .mobile-nav-panel {
+        position: absolute;
+        top: 0; right: 0;
+        width: min(300px, 82vw);
+        height: 100%;
+        background: rgba(18, 5, 38, 0.98);
+        border-left: 1px solid rgba(0, 201, 167, 0.15);
+        display: flex;
+        flex-direction: column;
+        padding: 80px 32px 40px;
+        transform: translateX(100%);
+        transition: transform 0.45s cubic-bezier(0.23,1,0.32,1);
+        box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+      }
+      .mobile-nav.open .mobile-nav-panel { transform: translateX(0); }
+      .mobile-nav-close {
+        position: absolute;
+        top: 20px; right: 20px;
+        background: none;
+        border: none;
+        color: rgba(232,237,245,0.45);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 8px;
+        transition: color 0.3s;
+        line-height: 1;
+      }
+      .mobile-nav-close:hover { color: #00c9a7; }
+      .mobile-nav-logo {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: var(--text);
+        text-decoration: none;
+        margin-bottom: 44px;
+        display: block;
+      }
+      .mobile-nav-logo span { color: #00c9a7; }
+      .mobile-nav-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        flex: 1;
+      }
+      .mobile-nav-links li {
+        border-bottom: 1px solid rgba(232,237,245,0.06);
+        transform: translateX(20px);
+        opacity: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+      }
+      .mobile-nav.open .mobile-nav-links li:nth-child(1) { transition-delay:0.08s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(2) { transition-delay:0.14s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(3) { transition-delay:0.20s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(4) { transition-delay:0.26s; transform:translateX(0); opacity:1; }
+      .mobile-nav.open .mobile-nav-links li:nth-child(5) { transition-delay:0.32s; transform:translateX(0); opacity:1; }
+      .mobile-nav-links a {
+        display: block;
+        padding: 16px 0;
+        color: rgba(232,237,245,0.45);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.3s, padding-left 0.3s;
+      }
+      .mobile-nav-links a:hover { color: #00c9a7; padding-left: 8px; }
+      .mobile-nav-login {
+        display: block;
+        margin-top: 32px;
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #3d0070, #00c9a7);
+        color: #fff !important;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+        transition: box-shadow 0.3s, transform 0.3s;
+      }
+      .mobile-nav-login:hover { box-shadow: 0 6px 20px rgba(0,201,167,0.4); transform: translateY(-1px); }
+      .mobile-nav-footer {
+        font-size: 11px;
+        color: rgba(232,237,245,0.18);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-top: 40px;
+      }
+      @media (max-width: 768px) {
+        .hamburger { display: flex; }
+        nav { display: none !important; }
+        .mobile-nav { display: block; }
+        .navbar { padding: 16px 20px !important; }
+      }
+      </style>
   </head>
   <body>
     <div class="bg">
@@ -592,7 +749,7 @@
       <div class="navbar">
         <a href="index.html" class="logo">
           <img src="logo.jpeg" alt="Norvex Logo" class="logo-img" />
-          Norvex
+          <span class="nor">Nor</span><span class="vex">vex</span>
         </a>
         <nav>
           <ul>
@@ -603,8 +760,26 @@
             <li><a href="login.html" class="btn-login">Login</a></li>
           </ul>
         </nav>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
       </div>
     </header>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+      <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+      <div class="mobile-nav-panel">
+        <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+        <a href="index.html" class="mobile-nav-logo">Nor<span>vex</span></a>
+        <ul class="mobile-nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="interior.html">Interior</a></li>
+        </ul>
+        <a href="login.html" class="mobile-nav-login">Login</a>
+        <p class="mobile-nav-footer">© 2026 Norvex</p>
+      </div>
+    </div>
 
     <main>
       <div class="auth-wrapper">
@@ -754,6 +929,7 @@
     <!-- ── FIREBASE SDK ── -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
     <script>
       /* ══════════════════════════════════════════
@@ -771,10 +947,14 @@
       };
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
+      const db   = firebase.firestore();
+
+      // Prevents onAuthStateChanged from redirecting while registration is in progress
+      let registrationInProgress = false;
 
       /* ── Auto-redirect if already logged in ── */
       auth.onAuthStateChanged((user) => {
-        if (user) window.location.href = "index.html";
+        if (user && !registrationInProgress) window.location.href = "index.html";
       });
 
       /* ── Alert helper ── */
@@ -820,49 +1000,118 @@
           return;
         }
 
+        registrationInProgress = true;
         setLoading(true);
-        try {
-          const result = await auth.createUserWithEmailAndPassword(
-            email,
-            password,
-          );
-          /* Save display name */
-          await result.user.updateProfile({ displayName: name });
-          /* Send email verification */
-          await result.user.sendEmailVerification();
-          showAlert(
-            "Account created! Verification email sent. Redirecting…",
-            "success",
-          );
-          setTimeout(() => (window.location.href = "index.html"), 1500);
-        } catch (err) {
-          setLoading(false);
-          const msgs = {
-            "auth/email-already-in-use":
-              "An account with this email already exists.",
-            "auth/invalid-email": "Please enter a valid email address.",
-            "auth/weak-password":
-              "Password is too weak. Use at least 6 characters.",
-            "auth/operation-not-allowed":
-              "Email/password accounts are not enabled. Enable them in Firebase Console.",
-          };
-          showAlert(msgs[err.code] || "Registration failed. Please try again.");
-        }
+        // don't wait for UI repaint — fire immediately
+        setTimeout(async () => {
+          try {
+            const result = await auth.createUserWithEmailAndPassword(email, password);
+
+            // 🚀 Redirect immediately after account is created
+            window.location.replace("interior.html");
+
+            // Cache user in localStorage so dashboard can show instantly
+            try {
+              localStorage.setItem("user", JSON.stringify({
+                uid: result.user.uid,
+                name: name,
+                email: email,
+                role: "user"
+              }));
+            } catch(e) {}
+
+            // Non-blocking: profile + Firestore doc + email verification run after redirect
+            setTimeout(async () => {
+              try { await result.user.updateProfile({ displayName: name }); } catch(e) {}
+              try {
+                await db.collection("users").doc(result.user.uid).set({
+                  name: name,
+                  email: email,
+                  role: "user",
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+              } catch(e) {}
+              try { await result.user.sendEmailVerification(); } catch(e) {}
+            }, 0);
+
+          } catch (err) {
+            registrationInProgress = false;
+            setLoading(false);
+            const msgs = {
+              "auth/email-already-in-use": "An account with this email already exists.",
+              "auth/invalid-email": "Please enter a valid email address.",
+              "auth/weak-password": "Password is too weak. Use at least 6 characters.",
+              "auth/operation-not-allowed": "Email/password accounts are not enabled. Enable them in Firebase Console.",
+            };
+            showAlert(msgs[err.code] || "Registration failed. Please try again.");
+          }
+        }, 0);
       }
 
-      /* ── Google Register ── */
+      /* ── Google Register ── popup with redirect fallback ── */
       async function registerWithGoogle() {
+        registrationInProgress = true;
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope("email");
+        provider.addScope("profile");
         try {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          await auth.signInWithPopup(provider);
+          const result = await auth.signInWithPopup(provider);
+          /* Save/merge user doc to Firestore */
+          await db.collection("users").doc(result.user.uid).set({
+            name: result.user.displayName || "",
+            email: result.user.email || "",
+            role: "user",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
           showAlert("Google sign-up successful! Redirecting…", "success");
-          setTimeout(() => (window.location.href = "index.html"), 1000);
+          // Cache user and redirect immediately
+          try {
+            localStorage.setItem("user", JSON.stringify({
+              uid: result.user.uid,
+              name: result.user.displayName || "",
+              email: result.user.email || "",
+              role: "user"
+            }));
+          } catch(e) {}
+          window.location.replace("interior.html");
         } catch (err) {
-          if (err.code !== "auth/popup-closed-by-user") {
+          registrationInProgress = false;
+          if (err.code === "auth/popup-blocked" || err.code === "auth/popup-closed-by-user") {
+            if (err.code === "auth/popup-blocked") {
+              showAlert("Popup blocked. Redirecting to Google sign-in…", "success");
+              registrationInProgress = true;
+              setTimeout(() => auth.signInWithRedirect(provider), 800);
+            }
+            // User closed popup — silently ignore
+          } else {
             showAlert("Google sign-up failed. Please try again.");
           }
         }
       }
+
+      /* ── Handle Google redirect result ── */
+      auth.getRedirectResult().then(async result => {
+        if (!result || !result.user) return;
+        registrationInProgress = false;
+        await db.collection("users").doc(result.user.uid).set({
+          name: result.user.displayName || "",
+          email: result.user.email || "",
+          role: "user",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        showAlert("Google sign-up successful! Redirecting…", "success");
+        try {
+          localStorage.setItem("user", JSON.stringify({
+            uid: result.user.uid,
+            name: result.user.displayName || "",
+            email: result.user.email || "",
+            role: "user"
+          }));
+        } catch(e) {}
+        window.location.replace("interior.html");
+      }).catch(err => {
+        console.warn("Redirect result error:", err.code);
+      });
 
       /* ── Enter key support ── */
       document.addEventListener("keydown", (e) => {

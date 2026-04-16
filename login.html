@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | Norvex</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
@@ -14,6 +15,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
 <link rel="icon" type="image/png" href="logo.jpeg" />
+    <link rel="prefetch" href="interior.html" />
     <style>
       :root {
         --teal: #00c9a7;
@@ -92,6 +94,7 @@
         filter: blur(80px);
         pointer-events: none;
         animation: orbFloat 12s ease-in-out infinite;
+        will-change: transform;
       }
       .orb-1 {
         width: 500px;
@@ -761,6 +764,23 @@
       </div>
     </header>
 
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+      <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+      <div class="mobile-nav-panel">
+        <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+        <a href="index.html" class="mobile-nav-logo">Nor<span>vex</span></a>
+        <ul class="mobile-nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="interior.html">Interior</a></li>
+        </ul>
+        <a href="login.html" class="mobile-nav-login active">Login</a>
+        <p class="mobile-nav-footer">© 2026 Norvex</p>
+      </div>
+    </div>
+
     <main>
       <div class="auth-wrapper">
         <!-- LEFT PANEL -->
@@ -804,7 +824,7 @@
           <div class="form-divider"></div>
 
           <!-- Firebase error/success alert -->
-          <div id="authAlert" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;align-items:center;gap:10px;"></div>
+          <div id="authAlert" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;align-items:center;gap:10px;"></div>
 
           <!-- Google Login -->
           <button onclick="loginWithGoogle()" class="btn-google" type="button">
@@ -846,179 +866,287 @@
       <p>© 2026 <span>Norvex</span> | Smart Architecture & Innovation</p>
     </footer>
 
-    <!-- ── FIREBASE SDK ── -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <!-- ── FORGOT PASSWORD MODAL ── -->
+    <div id="forgotModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(14,0,32,0.75);backdrop-filter:blur(8px);">
+      <div style="background:rgba(18,5,40,0.98);border:1px solid rgba(0,201,167,0.2);border-radius:12px;padding:40px 36px;max-width:400px;width:90%;box-shadow:0 40px 80px rgba(0,0,0,0.5);">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#e8edf5;margin-bottom:8px;">Reset Password</h3>
+        <p style="font-size:13px;color:rgba(232,237,245,0.5);margin-bottom:24px;line-height:1.6;">Enter your account email and we'll send you a reset link.</p>
+        <div id="forgotAlert" style="display:none;padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;align-items:center;gap:8px;"></div>
+        <div style="position:relative;margin-bottom:20px;">
+          <i class="fa-solid fa-envelope" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#00c9a7;font-size:14px;pointer-events:none;"></i>
+          <input type="email" id="forgotEmail" placeholder="Email address"
+            style="width:100%;padding:13px 14px 13px 42px;background:rgba(0,0,0,0.3);border:1px solid rgba(232,237,245,0.08);border-radius:4px;color:#e8edf5;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.3s,box-shadow 0.3s;"
+            onfocus="this.style.borderColor='#00c9a7';this.style.boxShadow='0 0 0 3px rgba(0,201,167,0.1)'"
+            onblur="this.style.borderColor='rgba(232,237,245,0.08)';this.style.boxShadow='none'"
+          />
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button onclick="closeForgotModal()" style="flex:1;padding:12px;background:rgba(232,237,245,0.06);border:1px solid rgba(232,237,245,0.1);border-radius:4px;color:rgba(232,237,245,0.6);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(232,237,245,0.1)'" onmouseout="this.style.background='rgba(232,237,245,0.06)'">Cancel</button>
+          <button onclick="sendResetEmail()" id="resetBtn" style="flex:1;padding:12px;background:linear-gradient(135deg,#3d0070,#00c9a7);border:none;border-radius:4px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(0,201,167,0.35)'" onmouseout="this.style.boxShadow='none'">Send Reset Link</button>
+        </div>
+      </div>
+    </div>
 
+    <!-- ── NON-MODULE HELPERS (available to inline onclick handlers) ── -->
     <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBPvLJVVUt_CnXrAPAMHqhhr1g2qyMhRIA",
-      authDomain: "norvex-87bb6.firebaseapp.com",
-      projectId: "norvex-87bb6",
-      storageBucket: "norvex-87bb6.firebasestorage.app",
-      messagingSenderId: "1080068996726",
-      appId: "1:1080068996726:web:8ceb78df2ed4f27d852957"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db   = firebase.firestore();
+      /* ── Session helpers ── */
+      function saveSession(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+      function loadSession(k)    { try { var v = sessionStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e){ return null; } }
 
-    /* ── Return-page helper: reads ?from= query param ── */
-    function getReturnPage() {
-      const params = new URLSearchParams(window.location.search);
-      const from = params.get('from');
-      // Whitelist — only allow known pages to prevent open redirect
-      const allowed = ['index.html','about.html','interior.html','visualizer.html','room3d.html','pdf-export.html'];
-      return (from && allowed.includes(from)) ? from : 'interior.html';
-    }
+      /* ── Alert helper ── */
+      function showAlert(msg, type) {
+        type = type || "error";
+        var el = document.getElementById("authAlert");
+        el.style.display    = "flex";
+        el.style.background = type === "error" ? "rgba(239,68,68,0.12)"  : "rgba(0,201,167,0.12)";
+        el.style.border     = type === "error" ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(0,201,167,0.3)";
+        el.style.color      = type === "error" ? "#f87171" : "#00c9a7";
+        el.innerHTML        = '<i class="fa-solid ' + (type === "error" ? "fa-circle-exclamation" : "fa-circle-check") + '"></i> ' + msg;
+      }
 
-    // Tracks whether a manual login is in progress — prevents onAuthStateChanged
-    // from double-redirecting while loginWithEmail/Google are still running
-    let loginInProgress = false;
+      /* ── Button loading state ── */
+      function setLoading(loading) {
+        var btn = document.getElementById("loginBtn");
+        btn.disabled  = loading;
+        btn.innerHTML = loading
+          ? '<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Logging in…'
+          : '<i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp; Login';
+      }
 
-    /* ── Auto-redirect if already logged in (not during active login) ── */
-    auth.onAuthStateChanged(async user => {
-      var li = document.getElementById('navAuthLi');
-      if (li) li.style.visibility = 'visible';
-      if (!user || loginInProgress) return;
-      try {
-        const doc = await db.collection("users").doc(user.uid).get();
-        if (doc.exists && doc.data().role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        } else {
-          window.location.href = getReturnPage();
+      /* ── Return-page helper ── */
+      function getReturnPage() {
+        var params  = new URLSearchParams(window.location.search);
+        var from    = params.get('from');
+        var allowed = ['index.html','about.html','interior.html','visualizer.html','room3d.html','pdf-export.html'];
+        return (from && allowed.includes(from)) ? from : 'interior.html';
+      }
+
+      /* ── Email login — delegates to modular SDK via window._fbLogin ── */
+      function loginWithEmail() {
+        var email    = document.getElementById("loginEmail").value.trim();
+        var password = document.getElementById("loginPassword").value;
+        var remember = document.getElementById("rememberMe").checked;
+        var emailPat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !password) { showAlert("Please enter your email and password."); return; }
+        if (!emailPat.test(email)) { showAlert("Please enter a valid email address."); return; }
+        setLoading(true);
+        // don't wait for UI repaint — fire Firebase immediately
+        setTimeout(function() { window._fbLogin(email, password, remember); }, 0);
+      }
+
+      /* ── Forgot password modal ── */
+      function forgotPassword(e) {
+        e.preventDefault();
+        var emailField = document.getElementById("loginEmail").value.trim();
+        document.getElementById("forgotEmail").value = emailField;
+        document.getElementById("forgotAlert").style.display = "none";
+        document.getElementById("forgotModal").style.display = "flex";
+        setTimeout(function(){ document.getElementById("forgotEmail").focus(); }, 50);
+      }
+      function closeForgotModal() {
+        document.getElementById("forgotModal").style.display = "none";
+      }
+      function sendResetEmail() {
+        var email   = document.getElementById("forgotEmail").value.trim();
+        var alertEl = document.getElementById("forgotAlert");
+        var btn     = document.getElementById("resetBtn");
+        function showForgotAlert(msg, type) {
+          type = type || "error";
+          alertEl.style.display    = "flex";
+          alertEl.style.background = type === "error" ? "rgba(239,68,68,0.12)"  : "rgba(0,201,167,0.12)";
+          alertEl.style.border     = type === "error" ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(0,201,167,0.3)";
+          alertEl.style.color      = type === "error" ? "#f87171" : "#00c9a7";
+          alertEl.innerHTML        = '<i class="fa-solid ' + (type === "error" ? "fa-circle-exclamation" : "fa-circle-check") + '"></i> ' + msg;
         }
-      } catch(e) { window.location.href = getReturnPage(); }
-    });
-
-    /* ── Handle Google redirect result (fires after redirect-based login) ── */
-    auth.getRedirectResult().then(async result => {
-      if (!result || !result.user) return;
-      loginInProgress = false;
-      showAlert("Google login successful! Redirecting…", "success");
-      const doc = await db.collection("users").doc(result.user.uid).get();
-      if (doc.exists && doc.data().role === "admin") {
-        window.location.href = "admin-dashboard.html";
-      } else {
-        window.location.href = getReturnPage();
-      }
-    }).catch(err => {
-      if (err.code !== "auth/popup-closed-by-user") {
-        showAlert("Google login failed. Please try again.");
-      }
-    });
-
-    /* ── Alert helper ── */
-    function showAlert(msg, type = "error") {
-      const el = document.getElementById("authAlert");
-      el.style.display = "flex";
-      el.style.background = type === "error"
-        ? "rgba(239,68,68,0.12)" : "rgba(0,201,167,0.12)";
-      el.style.border = type === "error"
-        ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(0,201,167,0.3)";
-      el.style.color = type === "error" ? "#f87171" : "#00c9a7";
-      el.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : "fa-circle-check"}"></i> ${msg}`;
-    }
-
-    /* ── Set button loading state ── */
-    function setLoading(loading) {
-      const btn = document.getElementById("loginBtn");
-      btn.disabled = loading;
-      btn.innerHTML = loading
-        ? '<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Logging in…'
-        : '<i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp; Login';
-    }
-
-    /* ── Email / Password Login ── */
-    async function loginWithEmail() {
-      const email    = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      const remember = document.getElementById("rememberMe").checked;
-
-      if (!email || !password) {
-        showAlert("Please enter your email and password.");
-        return;
+        if (!email) { showForgotAlert("Please enter your email address."); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showForgotAlert("Please enter a valid email address."); return; }
+        btn.disabled    = true;
+        btn.textContent = "Sending…";
+        window._fbSendReset(email, showForgotAlert, btn);
       }
 
-      loginInProgress = true;
-      setLoading(true);
-      try {
-        const persistence = remember
-          ? firebase.auth.Auth.Persistence.LOCAL
-          : firebase.auth.Auth.Persistence.SESSION;
-        await auth.setPersistence(persistence);
-        const cred = await auth.signInWithEmailAndPassword(email, password);
-        showAlert("Login successful! Redirecting…", "success");
-        const doc = await db.collection("users").doc(cred.user.uid).get();
-        if (doc.exists && doc.data().role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        } else {
-          window.location.href = getReturnPage();
-        }
-      } catch (err) {
-        loginInProgress = false;
-        setLoading(false);
-        const msgs = {
-          "auth/user-not-found":   "No account found with this email.",
-          "auth/wrong-password":   "Incorrect password. Please try again.",
-          "auth/invalid-email":    "Please enter a valid email address.",
-          "auth/too-many-requests":"Too many failed attempts. Try again later.",
-          "auth/user-disabled":    "This account has been disabled.",
-          "auth/invalid-credential": "Invalid email or password."
-        };
-        showAlert(msgs[err.code] || "Login failed. Please try again.");
-      }
-    }
+      /* ── Close modal on backdrop click / Escape ── */
+      document.getElementById("forgotModal").addEventListener("click", function(e) {
+        if (e.target === this) closeForgotModal();
+      });
 
-    /* ── Google Login ── popup with redirect fallback ── */
-    async function loginWithGoogle() {
-      loginInProgress = true;
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope("email");
-      provider.addScope("profile");
-      try {
-        const result = await auth.signInWithPopup(provider);
-        showAlert("Google login successful! Redirecting…", "success");
-        const doc = await db.collection("users").doc(result.user.uid).get();
-        if (doc.exists && doc.data().role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        } else {
-          window.location.href = getReturnPage();
-        }
-      } catch (err) {
-        loginInProgress = false;
-        if (err.code === "auth/popup-blocked" || err.code === "auth/popup-closed-by-user") {
-          // Popup was blocked — fall back to redirect flow
-          showAlert("Popup blocked. Redirecting to Google sign-in…", "success");
-          loginInProgress = true;
-          setTimeout(() => auth.signInWithRedirect(provider), 800);
-        } else {
-          showAlert("Google login failed: " + (err.message || "Please try again."));
+      /* ── Google login — delegates to modular SDK ── */
+      function loginWithGoogle() { window._fbGoogleLogin(); }
+
+      /* ── Hamburger / Mobile Nav ── */
+      (function() {
+        var btn   = document.getElementById('hamburgerBtn');
+        var nav   = document.getElementById('mobileNav');
+        var back  = document.getElementById('mobileNavBackdrop');
+        var close = document.getElementById('mobileNavClose');
+        if (!btn || !nav) return;
+        function openNav()  { btn.classList.add('open'); btn.setAttribute('aria-expanded','true'); nav.classList.add('open'); document.body.style.overflow='hidden'; }
+        function closeNav() { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); nav.classList.remove('open'); document.body.style.overflow=''; }
+        btn.addEventListener('click', openNav);
+        if (close) close.addEventListener('click', closeNav);
+        if (back)  back.addEventListener('click',  closeNav);
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') { closeNav(); closeForgotModal(); }
+          else if (e.key === 'Enter' && document.getElementById('forgotModal').style.display === 'flex') sendResetEmail();
+          else if (e.key === 'Enter') loginWithEmail();
+        });
+      })();
+    </script>
+
+    <!-- ── FIREBASE MODULAR SDK (same pattern as Serve the Nation) ── -->
+    <script type="module">
+      import { initializeApp }              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, signInWithPopup,
+               signInWithRedirect, getRedirectResult, sendPasswordResetEmail,
+               GoogleAuthProvider, onAuthStateChanged }
+             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey:            "AIzaSyBPvLJVVUt_CnXrAPAMHqhhr1g2qyMhRIA",
+        authDomain:        "norvex-87bb6.firebaseapp.com",
+        projectId:         "norvex-87bb6",
+        storageBucket:     "norvex-87bb6.firebasestorage.app",
+        messagingSenderId: "1080068996726",
+        appId:             "1:1080068996726:web:8ceb78df2ed4f27d852957"
+      };
+
+      const app  = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db   = getFirestore(app);
+
+      /* ── Role-based redirect ── */
+      async function redirectByRole(user) {
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          const dest = (snap.exists() && snap.data().role === "admin")
+            ? "admin-dashboard.html"
+            : window.getReturnPage();
+          window.location.replace(dest);
+        } catch(e) {
+          window.location.replace(window.getReturnPage());
         }
       }
-    }
 
-    /* ── Forgot Password ── */
-    async function forgotPassword(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value.trim();
-      if (!email) {
-        showAlert("Enter your email address first, then click Forgot password.");
-        return;
-      }
-      try {
-        await auth.sendPasswordResetEmail(email);
-        showAlert("Password reset email sent! Check your inbox.", "success");
-      } catch (err) {
-        showAlert("Could not send reset email. Check your email address.");
-      }
-    }
+      /* ── Auto-redirect if already logged in on page load ── */
+      let authChecked = false;
+      onAuthStateChanged(auth, user => {
+        if (authChecked) return;
+        authChecked = true;
+        const li = document.getElementById('navAuthLi');
+        if (li) li.style.visibility = 'visible';
+        if (!user) return;
+        redirectByRole(user);
+      });
 
-    /* ── Enter key support ── */
-    document.addEventListener("keydown", e => {
-      if (e.key === "Enter") loginWithEmail();
-    });
+      /* ── Handle Google redirect result (popup-blocked fallback) ── */
+      getRedirectResult(auth).then(result => {
+        if (!result || !result.user) return;
+        authChecked = true;
+        window.showAlert("Google login successful! Redirecting…", "success");
+        redirectByRole(result.user);
+      }).catch(err => {
+        if (err.code && err.code !== "auth/popup-closed-by-user") {
+          window.showAlert("Google login failed. Please try again.");
+        }
+      });
+
+      /* ── Email login bridge ── */
+      window._fbLogin = async function(email, password, remember) {
+        authChecked = true; // block onAuthStateChanged from double-redirecting
+        try {
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          const uid  = cred.user.uid;
+
+          // 🚀 Redirect immediately — don't wait for Firestore fetch
+          const dest = window.getReturnPage();
+          window.location.replace(dest);
+
+          // Fetch role + cache user data in background (non-blocking)
+          setTimeout(async () => {
+            let userData = null;
+            try {
+              const snap = await getDoc(doc(db, "users", uid));
+              if (snap.exists()) userData = snap.data();
+            } catch(e) {}
+            if (!userData) {
+              const dn    = cred.user.displayName || "User";
+              const parts = dn.split(" ");
+              userData = { uid, fname: parts[0] || "User", lname: parts.slice(1).join(" ") || "", name: dn, email: cred.user.email };
+            }
+            window.saveSession("currentUser", userData);
+            window.saveSession("isAdmin", !!(userData.role === "admin"));
+            // Cache in localStorage for instant dashboard access
+            try { localStorage.setItem("user", JSON.stringify(userData)); } catch(e) {}
+          }, 0);
+        } catch(err) {
+          authChecked = false;
+          window.setLoading(false);
+          const msgs = {
+            "auth/user-not-found":     "No account found with this email.",
+            "auth/wrong-password":     "Incorrect password. Please try again.",
+            "auth/invalid-email":      "Please enter a valid email address.",
+            "auth/too-many-requests":  "Too many failed attempts. Try again later.",
+            "auth/user-disabled":      "This account has been disabled.",
+            "auth/invalid-credential": "Invalid email or password."
+          };
+          window.showAlert(msgs[err.code] || "Login failed. Please try again.");
+        }
+      };
+
+      /* ── Google login bridge ── */
+      window._fbGoogleLogin = async function() {
+        const provider = new GoogleAuthProvider();
+        provider.addScope("email");
+        provider.addScope("profile");
+        authChecked = true;
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const uid    = result.user.uid;
+          let userData = null;
+          try {
+            const snap = await getDoc(doc(db, "users", uid));
+            if (snap.exists()) userData = snap.data();
+          } catch(e) {}
+          if (!userData) {
+            const dn    = result.user.displayName || "User";
+            const parts = dn.split(" ");
+            userData = { uid, fname: parts[0] || "User", lname: parts.slice(1).join(" ") || "", name: dn, email: result.user.email };
+          }
+          window.saveSession("currentUser", userData);
+          window.saveSession("isAdmin", !!(userData && userData.role === "admin"));
+          window.showAlert("Google login successful! Redirecting…", "success");
+          await redirectByRole(result.user);
+        } catch(err) {
+          authChecked = false;
+          if (err.code === "auth/popup-blocked" || err.code === "auth/popup-closed-by-user") {
+            window.showAlert("Popup blocked — redirecting to Google sign-in…", "success");
+            authChecked = true;
+            setTimeout(() => signInWithRedirect(auth, provider), 600);
+          } else {
+            window.showAlert("Google login failed. Please try again.");
+          }
+        }
+      };
+
+      /* ── Password reset bridge ── */
+      window._fbSendReset = async function(email, showForgotAlert, btn) {
+        try {
+          await sendPasswordResetEmail(auth, email);
+          showForgotAlert("Reset link sent! Check your inbox (and spam folder).", "success");
+          btn.textContent = "Sent ✓";
+          setTimeout(window.closeForgotModal, 3000);
+        } catch(err) {
+          const msgs = {
+            "auth/user-not-found":    "No account found with this email.",
+            "auth/invalid-email":     "Please enter a valid email address.",
+            "auth/too-many-requests": "Too many requests. Please wait a moment."
+          };
+          showForgotAlert(msgs[err.code] || "Could not send reset email. Please try again.");
+          btn.disabled    = false;
+          btn.textContent = "Send Reset Link";
+        }
+      };
     </script>
 
     
