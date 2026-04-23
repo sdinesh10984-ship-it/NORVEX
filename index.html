@@ -1035,6 +1035,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="gallery.html">Gallery</a></li>
             <li><a href="interior.html">Interior</a></li>
+            <li id="navDashLi" style="display:none"><a href="user-dashboard.html" style="color:var(--teal);font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-user"></i> Dashboard</a></li>
             <li id="navAuthLi" style="visibility:hidden"><a href="login.html" class="btn-login">Login</a></li>
           </ul>
         </nav>
@@ -2027,11 +2028,14 @@
     });
       firebase.auth().onAuthStateChanged(function(user) {
         var li = document.getElementById('navAuthLi');
+        var dashLi = document.getElementById('navDashLi');
         if (!li) return;
         if (user) {
           li.innerHTML = '<a href="#" class="btn-login" onclick="norvexLogout();return false;"><i class="fa-solid fa-right-from-bracket" style="margin-right:5px;"></i>Logout</a>';
+          if (dashLi) dashLi.style.display = 'list-item';
         } else {
           li.innerHTML = '<a href="login.html?from=index.html" class="btn-login">Login</a>';
+          if (dashLi) dashLi.style.display = 'none';
         }
         li.style.visibility = 'visible';
       });
