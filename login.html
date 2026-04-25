@@ -737,6 +737,77 @@
         .navbar { padding: 16px 20px !important; }
       }
 
+
+      /* ── AUTH TABS ── */
+      .auth-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 28px;
+        background: rgba(0,0,0,0.25);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px;
+      }
+      .auth-tab {
+        flex: 1;
+        padding: 9px 12px;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+      }
+      .auth-tab.active {
+        background: linear-gradient(135deg, #3d0070, #00c9a7);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(0,201,167,0.2);
+      }
+      .auth-tab:not(.active):hover { color: var(--text); background: rgba(255,255,255,0.05); }
+      .admin-tab-pane { display: none; }
+      .admin-tab-pane.active { display: block; }
+      .user-tab-pane { display: block; }
+      .user-tab-pane.hidden { display: none; }
+      .key-hint-small {
+        font-size: 11px;
+        color: rgba(239,68,68,0.55);
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .admin-login-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #3d0070, #f87171);
+        border: none;
+        border-radius: 4px;
+        color: white;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(248,113,113,0.3); }
+      .admin-login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+      #adminAuthAlert { display:none; padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:16px; align-items:center; gap:10px; }
     </style>
   </head>
   <body>
@@ -823,40 +894,70 @@
           <p class="form-sub">Enter your credentials to continue</p>
           <div class="form-divider"></div>
 
-          <!-- Firebase error/success alert -->
-          <div id="authAlert" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;align-items:center;gap:10px;"></div>
-
-          <!-- Google Login -->
-          <button onclick="loginWithGoogle()" class="btn-google" type="button">
-            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              <path fill="none" d="M0 0h48v48H0z"/>
-            </svg>
-            Continue with Google
-          </button>
-
-          <div class="or-divider"><span>or login with email</span></div>
-
-          <div class="input-box">
-            <i class="fa-solid fa-envelope"></i>
-            <input type="email" id="loginEmail" placeholder="Email address" required />
+          <!-- TAB SWITCHER -->
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tabUser" onclick="switchTab('user')">
+              <i class="fa-solid fa-user"></i> User
+            </button>
+            <button class="auth-tab" id="tabAdmin" onclick="switchTab('admin')">
+              <i class="fa-solid fa-shield-halved"></i> Admin
+            </button>
           </div>
-          <div class="input-box">
-            <i class="fa-solid fa-lock"></i>
-            <input type="password" id="loginPassword" placeholder="Password" required />
+
+          <!-- ── USER LOGIN PANE ── -->
+          <div class="user-tab-pane" id="userPane">
+            <div id="authAlert" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;align-items:center;gap:10px;"></div>
+            <button onclick="loginWithGoogle()" class="btn-google" type="button">
+              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                <path fill="none" d="M0 0h48v48H0z"/>
+              </svg>
+              Continue with Google
+            </button>
+            <div class="or-divider"><span>or login with email</span></div>
+            <div class="input-box">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" id="loginEmail" placeholder="Email address" required />
+            </div>
+            <div class="input-box">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="loginPassword" placeholder="Password" required />
+            </div>
+            <div class="remember-forgot">
+              <label><input type="checkbox" id="rememberMe" /> Remember me</label>
+              <a href="#" onclick="forgotPassword(event)">Forgot password?</a>
+            </div>
+            <button onclick="loginWithEmail()" class="btn-primary" type="button" id="loginBtn">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp; Login
+            </button>
+            <div class="register-link">
+              <p>Don't have an account? <a href="register.html">Create one</a></p>
+            </div>
           </div>
-          <div class="remember-forgot">
-            <label><input type="checkbox" id="rememberMe" /> Remember me</label>
-            <a href="#" onclick="forgotPassword(event)">Forgot password?</a>
-          </div>
-          <button onclick="loginWithEmail()" class="btn-primary" type="button" id="loginBtn">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp; Login
-          </button>
-          <div class="register-link">
-            <p>Don't have an account? <a href="register.html">Create one</a></p>
+
+          <!-- ── ADMIN LOGIN PANE ── -->
+          <div class="admin-tab-pane" id="adminPane">
+            <div id="adminAuthAlert" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;align-items:center;gap:10px;"></div>
+            <div class="input-box">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" id="adminEmail" placeholder="Admin email address" />
+            </div>
+            <div class="input-box">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="adminPassword" placeholder="Password" />
+            </div>
+            <div class="input-box">
+              <i class="fa-solid fa-key"></i>
+              <input type="password" id="adminKey" placeholder="Admin secret key" />
+            </div>
+            <p class="key-hint-small"><i class="fa-solid fa-triangle-exclamation"></i> Restricted — authorised personnel only</p>
+            <br/>
+            <button onclick="adminLogin()" class="admin-login-btn" type="button" id="adminLoginBtn">
+              <i class="fa-solid fa-shield-halved"></i> Access Admin Panel
+            </button>
           </div>
         </div>
       </div>
@@ -973,6 +1074,51 @@
       /* ── Google login — delegates to modular SDK ── */
       function loginWithGoogle() { window._fbGoogleLogin(); }
 
+      /* ── Tab switcher ── */
+      function switchTab(tab) {
+        var userPane  = document.getElementById("userPane");
+        var adminPane = document.getElementById("adminPane");
+        var tabUser   = document.getElementById("tabUser");
+        var tabAdmin  = document.getElementById("tabAdmin");
+        if (tab === "admin") {
+          userPane.classList.add("hidden");
+          adminPane.classList.add("active");
+          tabAdmin.classList.add("active");
+          tabUser.classList.remove("active");
+        } else {
+          adminPane.classList.remove("active");
+          userPane.classList.remove("hidden");
+          tabUser.classList.add("active");
+          tabAdmin.classList.remove("active");
+        }
+      }
+
+      /* ── Admin login ── */
+      var ADMIN_SECRET_KEY = "norvex-admin-2026";
+      function showAdminAlert(msg, type) {
+        type = type || "error";
+        var el = document.getElementById("adminAuthAlert");
+        el.style.display    = "flex";
+        el.style.background = type === "error" ? "rgba(239,68,68,0.12)"  : "rgba(0,201,167,0.12)";
+        el.style.border     = type === "error" ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(0,201,167,0.3)";
+        el.style.color      = type === "error" ? "#f87171" : "#00c9a7";
+        el.innerHTML        = '<i class="fa-solid ' + (type === "error" ? "fa-circle-exclamation" : "fa-circle-check") + '"></i> ' + msg;
+      }
+      function adminLogin() {
+        var email = document.getElementById("adminEmail").value.trim();
+        var pass  = document.getElementById("adminPassword").value;
+        var key   = document.getElementById("adminKey").value.trim();
+        if (!email || !pass || !key) { showAdminAlert("All fields are required."); return; }
+        if (key !== ADMIN_SECRET_KEY)  { showAdminAlert("Invalid admin security key."); return; }
+        var btn = document.getElementById("adminLoginBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying…';
+        window._fbAdminLogin(email, pass, showAdminAlert, function() {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Access Admin Panel';
+        });
+      }
+
       /* ── Hamburger / Mobile Nav ── */
       (function() {
         var btn   = document.getElementById('hamburgerBtn');
@@ -1018,7 +1164,7 @@
       /* ── Role-based redirect ── */
       async function redirectByRole(user) {
         try {
-          const snap = await getDoc(doc(db, "users", user.uid));
+          const snap = await getDoc(doc(db, "user", user.uid));
           const dest = (snap.exists() && snap.data().role === "admin")
             ? "admin-dashboard.html"
             : window.getReturnPage();
@@ -1066,7 +1212,7 @@
           setTimeout(async () => {
             let userData = null;
             try {
-              const snap = await getDoc(doc(db, "users", uid));
+              const snap = await getDoc(doc(db, "user", uid));
               if (snap.exists()) userData = snap.data();
             } catch(e) {}
             if (!userData) {
@@ -1105,7 +1251,7 @@
           const uid    = result.user.uid;
           let userData = null;
           try {
-            const snap = await getDoc(doc(db, "users", uid));
+            const snap = await getDoc(doc(db, "user", uid));
             if (snap.exists()) userData = snap.data();
           } catch(e) {}
           if (!userData) {
@@ -1145,6 +1291,34 @@
           showForgotAlert(msgs[err.code] || "Could not send reset email. Please try again.");
           btn.disabled    = false;
           btn.textContent = "Send Reset Link";
+        }
+      };
+
+      /* ── Admin login bridge ── */
+      window._fbAdminLogin = async function(email, password, showAdminAlert, resetBtn) {
+        authChecked = true;
+        try {
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          const snap = await getDoc(doc(db, "user", cred.user.uid));
+          if (!snap.exists() || snap.data().role !== "admin") {
+            await auth.signOut();
+            authChecked = false;
+            resetBtn();
+            showAdminAlert("Access denied. This account does not have admin privileges.");
+            return;
+          }
+          showAdminAlert("Admin verified! Redirecting…", "success");
+          setTimeout(() => window.location.replace("admin-dashboard.html"), 900);
+        } catch(err) {
+          authChecked = false;
+          resetBtn();
+          const msgs = {
+            "auth/user-not-found":     "No admin account found with this email.",
+            "auth/wrong-password":     "Incorrect password.",
+            "auth/invalid-credential": "Invalid email or password.",
+            "auth/too-many-requests":  "Too many attempts. Try again later."
+          };
+          showAdminAlert(msgs[err.code] || "Login failed: " + err.message);
         }
       };
     </script>
