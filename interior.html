@@ -1135,7 +1135,9 @@
 
     </style>
       <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 </head>
   <body>
     <!-- Ambient background -->
@@ -2226,7 +2228,9 @@
 
       let particles = [];
 
-      for (let i = 0; i < 90; i++) {
+      // Reduced from 90 to 45 particles — halves the O(n²) connection loop cost
+      const PARTICLE_COUNT = 45;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
@@ -2235,42 +2239,46 @@
         });
       }
 
-      function animate() {
+      // Throttle to ~30fps — ambient bg doesn't need 60fps
+      let lastFrame = 0;
+      const FRAME_INTERVAL = 33;
+
+      function animate(timestamp) {
+        requestAnimationFrame(animate);
+        if (timestamp - lastFrame < FRAME_INTERVAL) return;
+        lastFrame = timestamp;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach((p) => {
           p.x += p.vx;
           p.y += p.vy;
-
           if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
           if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
           ctx.beginPath();
           ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
           ctx.fillStyle = "#00f5a0";
           ctx.fill();
         });
 
+        // Batch all lines in one path — fewer GPU state changes
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(0, 245, 160, 0.1)";
         for (let i = 0; i < particles.length; i++) {
-          for (let j = i; j < particles.length; j++) {
+          for (let j = i + 1; j < particles.length; j++) {
             let dx = particles[i].x - particles[j].x;
             let dy = particles[i].y - particles[j].y;
-            let dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < 120) {
-              ctx.beginPath();
+            // Squared distance avoids Math.sqrt — same result, faster
+            if (dx * dx + dy * dy < 14400) {
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = "rgba(0, 245, 160,0.1)";
-              ctx.stroke();
             }
           }
         }
-
-        requestAnimationFrame(animate);
+        ctx.stroke();
       }
 
-      animate();
+      requestAnimationFrame(animate);
     </script>
 
     <script>
@@ -2525,11 +2533,7 @@ Rules:
         }
       });
 
-      function saveDesign() {
-        const designHTML = document.getElementById("output").innerHTML;
-        localStorage.setItem("norvexSavedLayout", designHTML);
-        alert("✅ Design saved!");
-      }
+      /* saveDesign() is defined in the Firebase script block below */
 
       function openVisualizer(e) {
         e.preventDefault();
@@ -2696,21 +2700,30 @@ Rules:
       updateSliderFill(budgetSlider);
     </script>
     <script src="server.js"></script>
-                  <script>
-    /* ── Norvex Auth Nav ── */
-    function norvexLogout() {
-      firebase.auth().signOut().then(function() { window.location.href = 'login.html'; });
-    }
+    <script>
+    /* ── Norvex Firebase Init + Auth Nav + Save to Firestore ── */
     (function() {
-      if (!firebase.apps.length) firebase.initializeApp({
-      apiKey: "AIzaSyBPvLJVVUt_CnXrAPAMHqhhr1g2qyMhRIA",
-      authDomain: "norvex-87bb6.firebaseapp.com",
-      projectId: "norvex-87bb6",
-      storageBucket: "norvex-87bb6.firebasestorage.app",
-      messagingSenderId: "1080068996726",
-      appId: "1:1080068996726:web:8ceb78df2ed4f27d852957"
-    });
+      var firebaseConfig = {
+        apiKey: "AIzaSyBPvLJVVUt_CnXrAPAMHqhhr1g2qyMhRIA",
+        authDomain: "norvex-87bb6.firebaseapp.com",
+        projectId: "norvex-87bb6",
+        storageBucket: "norvex-87bb6.firebasestorage.app",
+        messagingSenderId: "1080068996726",
+        appId: "1:1080068996726:web:8ceb78df2ed4f27d852957"
+      };
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+      var db = firebase.firestore();
+      window._norvexDb = db;
+      window._norvexCurrentUser = null;
+
+      function norvexLogout() {
+        firebase.auth().signOut().then(function() { window.location.href = 'login.html'; });
+      }
+      window.norvexLogout = norvexLogout;
+
       firebase.auth().onAuthStateChanged(function(user) {
+        window._norvexCurrentUser = user;
         var li = document.getElementById('navAuthLi');
         if (!li) return;
         if (user) {
@@ -2721,6 +2734,60 @@ Rules:
         li.style.visibility = 'visible';
       });
     })();
+
+    /* ── Save Design: Firebase Firestore + localStorage fallback ── */
+    async function saveDesign() {
+      var designHTML = document.getElementById('output').innerHTML;
+      var sqft   = document.getElementById('sqftInput').value;
+      var budget = document.getElementById('budgetInput').value;
+
+      // Always save to localStorage as backup
+      localStorage.setItem('norvexSavedLayout', designHTML);
+      localStorage.setItem('norvexSqft', sqft);
+      localStorage.setItem('norvexBudget', budget);
+      localStorage.setItem('norvexSelections', JSON.stringify(selected));
+
+      var user = window._norvexCurrentUser;
+      if (!user) {
+        alert('✅ Design saved locally! Sign in to sync to your dashboard.');
+        return;
+      }
+
+      // Extract plain text summary from HTML to avoid Firestore 1MB limit
+      var tmp = document.createElement('div');
+      tmp.innerHTML = designHTML;
+      var textSummary = (tmp.innerText || tmp.textContent || '').slice(0, 2000);
+
+      // Get first image src if present
+      var firstImg = tmp.querySelector('img');
+      var imageUrl = firstImg ? firstImg.src : null;
+
+      try {
+        var db  = window._norvexDb;
+        var fv  = firebase.firestore.FieldValue;
+        await db.collection('saved_designs').add({
+          userId:      user.uid,
+          room:        selected.room    || null,
+          style:       selected.style   || null,
+          climate:     selected.climate || null,
+          region:      selected.region  || null,
+          sqft:        sqft   || null,
+          budget:      budget || null,
+          textSummary: textSummary,
+          imageUrl:    imageUrl,
+          favourite:   false,
+          savedAt:     fv.serverTimestamp()
+        });
+        alert('✅ Design saved to your dashboard!');
+      } catch(e) {
+        console.error('Firestore save error:', e.code, e.message);
+        if (e.code === 'permission-denied') {
+          alert('❌ Cloud save blocked by Firestore rules.\n\nFix: Go to Firebase Console → Firestore → Rules and set:\n\nrules_version = \'2\';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /saved_designs/{id} {\n      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;\n      allow create: if request.auth != null;\n    }\n  }\n}');
+        } else {
+          alert('⚠️ Design saved locally. Cloud error: ' + e.message);
+        }
+      }
+    }
     </script>
 </body>
 </html>
