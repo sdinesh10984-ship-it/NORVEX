@@ -453,12 +453,12 @@ body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0e0020,
 <script>
 /* ── FIREBASE CONFIG ── */
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyBPvLJVVUt_CnXrAPAMHqhhr1g2qyMhRIA",
+  authDomain:        "norvex-87bb6.firebaseapp.com",
+  projectId:         "norvex-87bb6",
+  storageBucket:     "norvex-87bb6.firebasestorage.app",
+  messagingSenderId: "1080068996726",
+  appId:             "1:1080068996726:web:8ceb78df2ed4f27d852957"
 };
 firebase.initializeApp(firebaseConfig);
 const auth    = firebase.auth();
@@ -520,16 +520,36 @@ async function loadStats() {
 /* ── LOAD SAVED DESIGNS ── */
 async function loadSavedDesigns() {
   const uid = currentUser.uid;
-  const snap = await db.collection("saved_designs").where("userId","==",uid).orderBy("savedAt","desc").get();
+  let snap;
+  try {
+    // Try ordered query first (needs Firestore index)
+    snap = await db.collection("saved_designs")
+      .where("userId","==",uid)
+      .orderBy("savedAt","desc")
+      .get();
+  } catch(e) {
+    // Fallback: unordered query (works without index)
+    console.warn("Ordered query failed, falling back:", e.message);
+    try {
+      snap = await db.collection("saved_designs")
+        .where("userId","==",uid)
+        .get();
+    } catch(e2) {
+      console.error("Firestore load failed:", e2);
+      document.getElementById("savedDesignsGrid").innerHTML = emptyHTML("fa-triangle-exclamation","Failed to load designs — check Firestore rules","Try Again","user-dashboard.html");
+      return;
+    }
+  }
+
   const cards = designsHTML(snap.docs);
   document.getElementById("savedDesignsGrid").innerHTML  = cards || emptyHTML("fa-bookmark","No saved designs yet","Generate a design","interior.html");
   document.getElementById("recentDesignsGrid").innerHTML = cards ? designsHTML(snap.docs.slice(0,4)) : emptyHTML("fa-layer-group","No designs yet","Create your first design","interior.html");
-  document.getElementById("savedCount").textContent = snap.size + " designs";
+  document.getElementById("savedCount").textContent = snap.size + " design" + (snap.size !== 1 ? "s" : "");
 
   /* Favourites */
   const favDocs = snap.docs.filter(d => d.data().favourite);
-  document.getElementById("favsGrid").innerHTML = favDocs.length ? designsHTML(favDocs) : emptyHTML("fa-heart","No favourites yet","Heart a design to save it here","interior.html");
-  document.getElementById("favCount").textContent = favDocs.length + " favourites";
+  document.getElementById("favsGrid").innerHTML = favDocs.length ? designsHTML(favDocs) : emptyHTML("fa-heart","No favourites yet — heart a design to save it here","Browse designs","interior.html");
+  document.getElementById("favCount").textContent = favDocs.length + " favourite" + (favDocs.length !== 1 ? "s" : "");
 }
 
 function designsHTML(docs) {
@@ -537,25 +557,33 @@ function designsHTML(docs) {
   return docs.map(doc => {
     const d = doc.data();
     const isFav = d.favourite || false;
+    const savedDate = d.savedAt ? new Date(d.savedAt.seconds * 1000).toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"}) : "";
+    const preview = d.textSummary ? d.textSummary.slice(0, 120).trim() + "…" : "";
     return `<div class="design-card">
       <div class="design-card-img">
-        ${d.imageUrl ? `<img src="${d.imageUrl}" alt="Design">` : `<div class="no-img"><i class="fa-solid fa-image"></i></div>`}
+        ${d.imageUrl
+          ? `<img src="${d.imageUrl}" alt="Design" onerror="this.parentElement.innerHTML='<div class=\\"no-img\\"><i class=\\"fa-solid fa-image\\"></i></div>'">`
+          : `<div class="no-img" style="display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;height:100%">
+               <i class="fa-solid fa-couch" style="font-size:32px;color:rgba(0,201,167,0.35)"></i>
+               ${preview ? `<p style="font-size:10px;color:rgba(232,237,245,0.3);text-align:center;padding:0 16px;line-height:1.5;max-width:200px">${preview}</p>` : ""}
+             </div>`
+        }
         <div class="design-card-fav ${isFav?"fav":""}" onclick="toggleFav('${doc.id}',${isFav},this)">
           <i class="fa-${isFav?"solid":"regular"} fa-heart"></i>
         </div>
       </div>
       <div class="design-card-body">
-        <div class="design-card-title">${d.room || "Design"}</div>
-        <div class="design-card-meta">${d.climate||""} · ${d.region||""}</div>
+        <div class="design-card-title">${d.room || "Interior Design"}</div>
+        <div class="design-card-meta">${[d.climate, d.region].filter(Boolean).join(" · ")}${savedDate ? ` · ${savedDate}` : ""}</div>
         <div class="design-card-tags">
-          ${d.style ? `<span class="design-tag">${d.style}</span>` : ""}
+          ${d.style  ? `<span class="design-tag">${d.style}</span>` : ""}
           ${d.budget ? `<span class="design-tag">₹${Number(d.budget).toLocaleString("en-IN")}</span>` : ""}
-          ${d.sqft ? `<span class="design-tag">${d.sqft} sqft</span>` : ""}
+          ${d.sqft   ? `<span class="design-tag">${d.sqft} sqft</span>` : ""}
         </div>
         <div class="design-card-actions">
           <button class="card-btn view" onclick="viewDesign('${doc.id}')"><i class="fa-solid fa-eye"></i> View</button>
-          <button class="card-btn pdf" onclick="exportPDF('${doc.id}')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-          <button class="card-btn del" onclick="deleteDesign('${doc.id}')"><i class="fa-solid fa-trash"></i></button>
+          <button class="card-btn pdf"  onclick="exportPDF('${doc.id}')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+          <button class="card-btn del"  onclick="deleteDesign('${doc.id}')"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
     </div>`;
@@ -580,9 +608,70 @@ async function toggleFav(docId, current, el) {
 }
 
 /* ── VIEW DESIGN ── */
-function viewDesign(docId) {
-  localStorage.setItem("norvex_view_design", docId);
-  window.location.href = "interior.html";
+async function viewDesign(docId) {
+  try {
+    const docRef = await db.collection("saved_designs").doc(docId).get();
+    if (!docRef.exists) { showToast("Design not found"); return; }
+    const d = docRef.data();
+    const savedDate = d.savedAt ? new Date(d.savedAt.seconds * 1000).toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}) : "—";
+
+    const rows = [
+      ["Room Type",    d.room    || "—"],
+      ["Design Style", d.style   || "—"],
+      ["Climate Zone", d.climate || "—"],
+      ["Region",       d.region  || "—"],
+      ["Room Size",    d.sqft    ? d.sqft + " sqft" : "—"],
+      ["Budget",       d.budget  ? "₹" + Number(d.budget).toLocaleString("en-IN") : "—"],
+      ["Saved On",     savedDate],
+    ];
+
+    const detailRows = rows.map(([k,v]) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,201,167,0.08)">
+        <span style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(232,237,245,0.4)">${k}</span>
+        <span style="font-size:14px;color:#e8edf5;font-family:'Cormorant Garamond',serif;font-size:16px">${v}</span>
+      </div>`).join("");
+
+    const summaryHTML = d.textSummary
+      ? `<div style="margin-top:24px;padding:20px;background:rgba(0,201,167,0.04);border:1px solid rgba(0,201,167,0.1);border-radius:10px">
+           <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:12px">AI Design Brief</div>
+           <p style="font-size:13px;color:rgba(232,237,245,0.7);line-height:1.8;white-space:pre-wrap">${d.textSummary}</p>
+         </div>` : "";
+
+    const imgHTML = d.imageUrl
+      ? `<div style="height:220px;border-radius:10px;overflow:hidden;margin-bottom:24px;border:1px solid rgba(0,201,167,0.15)">
+           <img src="${d.imageUrl}" style="width:100%;height:100%;object-fit:cover" alt="Design">
+         </div>` : "";
+
+    // Remove existing modal if any
+    const existing = document.getElementById("designViewModal");
+    if (existing) existing.remove();
+
+    const modal = document.createElement("div");
+    modal.id = "designViewModal";
+    modal.style.cssText = "position:fixed;inset:0;z-index:9998;background:rgba(14,0,32,0.92);backdrop-filter:blur(14px);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px";
+    modal.innerHTML = `
+      <div style="background:rgba(20,5,42,0.98);border:1px solid rgba(0,201,167,0.18);border-radius:16px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.5)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid rgba(0,201,167,0.1)">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#e8edf5">${d.room || "Design"} <em style="color:#00c9a7;font-style:italic">Details</em></div>
+          <button onclick="document.getElementById('designViewModal').remove()" style="background:none;border:1px solid rgba(232,237,245,0.12);color:rgba(232,237,245,0.5);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s" onmouseover="this.style.borderColor='#00c9a7';this.style.color='#00c9a7'" onmouseout="this.style.borderColor='rgba(232,237,245,0.12)';this.style.color='rgba(232,237,245,0.5)'">✕</button>
+        </div>
+        <div style="padding:28px">
+          ${imgHTML}
+          ${detailRows}
+          ${summaryHTML}
+          <div style="margin-top:24px;display:flex;gap:10px">
+            <button onclick="exportPDF('${docId}')" style="flex:1;padding:11px;background:linear-gradient(135deg,#3d0070,#00c9a7);border:none;border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+            <button onclick="document.getElementById('designViewModal').remove()" style="flex:1;padding:11px;background:transparent;border:1px solid rgba(232,237,245,0.1);border-radius:8px;color:rgba(232,237,245,0.5);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">Close</button>
+          </div>
+        </div>
+      </div>`;
+
+    // Close on backdrop click
+    modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+  } catch(e) {
+    showToast("Error loading design: " + e.message);
+  }
 }
 
 /* ── DELETE DESIGN ── */
